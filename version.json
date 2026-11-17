@@ -1,12 +1,12 @@
 {
-  "version": "1.0.0",
-  "date": "2026-11-16",
+  "version": "1.1.0",
+  "date": "2026-11-17",
   "file": "NetSketch.html",
   "notes": [
-    "First version on GitHub",
-    "Update button: checks this repo for a newer NetSketch",
-    "LLDP history: restore one of the last 5 LLDP imports per device",
-    "SSH helper and support-file import for UniFi",
-    "IT-1 theme, logo and Managed by IT1 badge"
+    "FortiGate config import finds IPsec VPN tunnels and draws them as VPN cables",
+    "Adds the firewall at the other end of each tunnel, with the subnets on both sides in its notes",
+    "Importing that firewall's own config later fills in the same device instead of adding a new one",
+    "Dial-up VPNs (FortiClient) show as a VPN users device",
+    "Updates now come from the public netsketch-releases repo"
   ]
 }

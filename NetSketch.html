@@ -934,6 +934,8 @@ function normalize(d){
     const c=CAT[o.type]; if(!c||!c[o.brand]){o.brand='';o.sku='';} else if(!c[o.brand].models[o.sku]) o.sku=Object.keys(c[o.brand].models)[0];
     if(n.ports&&typeof n.ports==='object') for(const [k,v] of Object.entries(n.ports)){ if(!v||typeof v!=='object') continue;
       o.ports[k]={u:vid(v.u),t:Array.isArray(v.t)?[...new Set(v.t.map(vid).filter(Boolean))]:[],desc:s(v.desc),off:!!v.off}; }
+    if(Array.isArray(n.ips)) o.ips=[...new Set(n.ips.map(String).filter(x=>IP4.test(x)))].slice(0,64);
+    if(n.vpnPeer) o.vpnPeer=true;
     if(n.isp&&typeof n.isp==='object') o.isp={conn:CONN[n.isp.conn]?n.isp.conn:'',mode:MODES[n.isp.mode]?n.isp.mode:'',plan:s(n.isp.plan),cust:s(n.isp.cust)};
     return o;});
   const ids=new Set(nodes.map(n=>n.id));
@@ -1755,6 +1757,32 @@ function ftree(text){
   }
   return root;
 }
+/* IPsec tunnels in a FortiGate config: phase1 gives the peer, phase2 the subnets on both sides */
+function fortiVpn(C){
+  const addr=C['firewall address']?.edits||{}, grp=C['firewall addrgrp']?.edits||{};
+  const net=(ip,mask)=>ip&&IP4.test(ip)&&!/^0\.0\.0\.0$/.test(ip)?ip+(mask&&IP4.test(mask)?'/'+maskBits(mask):''):'';
+  const obj=(n,seen=new Set())=>{ if(!n||seen.has(n)) return []; seen.add(n);
+    if(grp[n]) return (grp[n].sets.member||[]).flatMap(m=>obj(m,seen));
+    const a=addr[n]; if(!a) return [n]; const sub=a.sets.subnet; if(sub) return [net(sub[0],sub[1])||n];
+    if(a.sets['start-ip']) return [`${a.sets['start-ip'][0]}–${(a.sets['end-ip']||[''])[0]}`]; if(a.sets.fqdn) return [a.sets.fqdn[0]]; return [n]; };
+  const side=(e,k)=>{ const t=(e.sets[k+'-addr-type']||['subnet'])[0];
+    if(t==='name') return obj((e.sets[k+'-name']||[])[0]);
+    if(t==='ip'||t==='range') return [(e.sets[k+'-start-ip']||e.sets[k+'-ip']||[''])[0]].filter(Boolean);
+    const sub=e.sets[k+'-subnet']; return sub?[net(sub[0],sub[1])].filter(Boolean):[]; };
+  const out=[];
+  for(const kind of ['vpn ipsec phase1-interface','vpn ipsec phase1']) for(const [name,e] of Object.entries(C[kind]?.edits||{})){
+    const type=(e.sets.type||['static'])[0], gw=(e.sets['remote-gw']||[''])[0], ddns=(e.sets['remotegw-ddns']||[''])[0];
+    const dial=type==='dynamic'||(!ddns&&(!gw||gw==='0.0.0.0'));
+    out.push({name,dial,remote:dial?'':(type==='ddns'||ddns?ddns:gw),iface:(e.sets.interface||[''])[0],ike:(e.sets['ike-version']||['1'])[0],
+      comment:(e.sets.comments||e.sets.comment||[''])[0],local:[],remoteNets:[],policy:kind==='vpn ipsec phase1'});
+  }
+  for(const kind of ['vpn ipsec phase2-interface','vpn ipsec phase2']) for(const [,e] of Object.entries(C[kind]?.edits||{})){
+    const t=out.find(x=>x.name===(e.sets.phase1name||[''])[0]); if(!t) continue;
+    side(e,'src').forEach(x=>{ if(!t.local.includes(x)&&!/^0\.0\.0\.0\/0$/.test(x)) t.local.push(x); });
+    side(e,'dst').forEach(x=>{ if(!t.remoteNets.includes(x)&&!/^0\.0\.0\.0\/0$/.test(x)) t.remoteNets.push(x); });
+  }
+  return out;
+}
 function parseForti(text){
   const C=ftree(text).configs, sources=[], ifs=C['system interface']?.edits||{};
   const host=(C['system global']?.sets.hostname||[''])[0];
@@ -1791,7 +1819,8 @@ function parseForti(text){
     for(const [n,e] of Object.entries(ifs)){ if(!vmap[n]||!e.sets.interface) continue; resolve(e.sets.interface[0]).forEach(m=>addT(rec(ports,m),vmap[n])); }
     const haS=C['system ha']?.sets||{}, haMode=(haS.mode||[])[0];
     const ha=haMode&&haMode!=='standalone'?{mode:haMode==='a-a'?'aa':'ap',name:(haS['group-name']||[])[0]||'',hb:(haS.hbdev||[]).filter((x,i)=>i%2===0)}:null;
-    sources.push({key:'fgt',label:'FortiGate interfaces'+(host?' ('+host+')':''),hint:ver,hostname:host,ip:ipPref||ip,ports,vlans,kind:'firewall',brand:'fortinet',warnings:[],ha,
+    const ips=[...new Set(Object.values(ifs).map(e=>ipStr(e).split('/')[0]).filter(Boolean))];
+    sources.push({key:'fgt',label:'FortiGate interfaces'+(host?' ('+host+')':''),hint:ver,hostname:host,ip:ipPref||ip,ports,vlans,kind:'firewall',brand:'fortinet',warnings:[],ha,ips,vpn:fortiVpn(C),
       neighbors:mswNames.map((nm,i)=>({local:flMembers[i]||flMembers[0]||'',name:nm,remote:'',via:'FortiLink'}))});
   }
   for(const [sn,e] of Object.entries(C['switch-controller managed-switch']?.edits||{})){
@@ -2403,7 +2432,7 @@ exit`};
 let imp=null, impTimer=null;
 $('#impFmt').innerHTML=Object.entries(FORMATS).map(([k,v])=>`<option value="${k}">${v}</option>`).join('');
 function openImport(nodeId){
-  imp={nodeId:nodeId||null,text:'',lldp:'',fmt:'auto',res:null,err:'',detected:null,srcKey:null,brand:'',sku:'',nb:[],skip:new Set(),nd:new Map(),addNew:true,haPeer:true,o:{name:true,ip:true,vlans:true,replace:true}};
+  imp={nodeId:nodeId||null,text:'',lldp:'',fmt:'auto',res:null,err:'',detected:null,srcKey:null,brand:'',sku:'',nb:[],skip:new Set(),nd:new Map(),addNew:true,haPeer:true,vpnSkip:new Set(),o:{name:true,ip:true,vlans:true,replace:true}};
   $('#impText').value=''; $('#impLldp').value=''; $('#impFmt').value='auto'; $('#impModal').hidden=false;
   { const n=nodeId&&S.nodes.find(x=>x.id===nodeId); $('#sshHost').value=n&&n.ip?String(n.ip).replace(/\/.*$/,''):'';
     if(n){ const b=(n.brand||'')+' '+(n.sku||n.model||''); const t=/forti/i.test(b)?(n.type==='firewall'?'fgt':'fsw'):/unifi|ubiquiti|usw/i.test(b)?'unifi':/cx|6[0-9]00/i.test(b)?'cx':/cisco|catalyst|c9/i.test(b)?'cisco':/hp|aruba/i.test(b)?'hp':null; if(t) $('#sshType').value=t; }
@@ -2511,7 +2540,7 @@ function renderImport(){
   const v=c=>c.off?'<span class="none">disabled</span>':c.u!=null?vtag(c.u):'<span class="none">–</span>';
   const conns=impConns(), per=impPeripherals();
   box.innerHTML=`<p class="imp-sub">Preview</p>
-    <div class="imp-det">Read as <b>${esc(FORMATS[imp.detected])}</b>${s.hostname?` · hostname <b>${esc(s.hostname)}</b>`:''}${s.ip?` · <span class="mono">${esc(s.ip)}</span>`:''}<br>${Object.keys(s.ports).length} interfaces, ${s.vlans.length} VLANs found${tgt?'':` · a new ${TYPES[type].name.toLowerCase()} will be added`}</div>
+    <div class="imp-det">Read as <b>${esc(FORMATS[imp.detected])}</b>${s.hostname?` · hostname <b>${esc(s.hostname)}</b>`:''}${s.ip?` · <span class="mono">${esc(s.ip)}</span>`:''}<br>${Object.keys(s.ports).length} interfaces, ${s.vlans.length} VLANs found${tgt?'':impStub()?` · fills in <b>${esc(impStub().label)}</b>`:` · a new ${TYPES[type].name.toLowerCase()} will be added`}</div>
     ${imp.res.sources.length>1?`<div class="field"><label for="imp-src">Device in this config</label><select id="imp-src">${imp.res.sources.map(x=>opt(x.key,x.label,imp.srcKey)).join('')}</select></div>`:''}
     <div class="two"><div class="field"><label for="imp-brand">Brand</label><select id="imp-brand">${Object.entries(cat).map(([k,b])=>opt(k,b.name,imp.brand)).join('')}</select></div>
     <div class="field"><label for="imp-sku">Model</label><select id="imp-sku">${Object.entries(cat[imp.brand].models).map(([k,mm])=>opt(k,mm.name,imp.sku)).join('')}</select></div></div>
@@ -2524,6 +2553,7 @@ function renderImport(){
     ${conns.length?`<p class="imp-sub">${conns.length} connection${conns.length>1?'s':''} to devices in the diagram</p>${connList(conns)}`
       :per.length?'':`<p class="note" style="margin:12px 0 0">No connections to devices in the diagram found. Port descriptions that name another device, or LLDP/CDP output in the neighbours box, add cables automatically.</p>`}
     ${periList(per)}
+    ${vpnList(impVpn())}
     ${s.ha&&!(tgt&&clusterOf(tgt.id))?`<p class="imp-sub">High availability</p><label class="chk"><input type="checkbox" id="imp-ha" ${imp.haPeer?'checked':''}><span>This FortiGate runs in an HA cluster (${s.ha.mode==='aa'?'active-active':'active-passive'}${s.ha.name?', group '+esc(s.ha.name):''}${s.ha.hb.length?', heartbeat on '+esc(s.ha.hb.join(', ')):''}). Add the second unit next to it, cabled the same way.</span></label>`:''}
     <p class="imp-sub">${rows.length} ports to import</p>
     <div class="imp-tbl"><table class="ptable"><thead><tr><th>Config</th><th>Port</th><th>Description</th><th>Untag</th><th>Tagged</th></tr></thead><tbody>${
@@ -2538,12 +2568,47 @@ function renderImport(){
   g('imp-o-vlans')?.addEventListener('change',e=>imp.o.vlans=e.target.checked);
   g('imp-o-rep')?.addEventListener('change',()=>imp.o.replace=true);
   g('imp-o-mer')?.addEventListener('change',()=>imp.o.replace=false);
-  wireConnList(box); wirePeri(box,()=>{});
+  wireConnList(box); wirePeri(box,()=>{}); wireVpn(box);
   box.querySelector('#imp-ha')?.addEventListener('change',e=>{imp.haPeer=e.target.checked;});
 }
 const connList=conns=>conns.map(c=>`<label class="chk"><input type="checkbox" data-conn="${esc(c.key)}" ${imp.skip.has(c.key)?'':'checked'}><span><span class="mono">${c.local?esc(c.local):'<span class="none">port not known</span>'}</span> ↔ <b>${esc(c.n.label)}</b>${c.remote?` <span class="mono">${esc(c.remote)}</span>`:''}<br><span class="none">${c.update?'Already connected: fills in the port names. ':''}Found in ${esc(c.via.join(', '))}.</span></span></label>`).join('');
 function wireConnList(box){box.querySelectorAll('[data-conn]').forEach(x=>x.addEventListener('change',()=>{ if(x.checked) imp.skip.delete(x.dataset.conn); else imp.skip.add(x.dataset.conn);
   if(!imp.res) lldpBtn(); }));}
+/* ---- IPsec VPN tunnels from a firewall config ---- */
+const vpnPeerOf=(t,selfId,selfIps)=>{ if(t.dial||!t.remote) return null; const r=t.remote;
+  return S.nodes.find(m=>m.id!==selfId&&['firewall','router','vpn','modem'].includes(m.type)&&(m.ip===r||(m.ips||[]).includes(r)))||null; };
+function impVpn(){ const s=imp.res&&curSrc(); if(!s||!s.vpn||!s.vpn.length) return [];
+  const tgt=imp.nodeId&&node(imp.nodeId), selfId=tgt?tgt.id:(impStub()||{}).id;
+  return s.vpn.map(t=>{ const peer=t.dial?S.nodes.find(m=>m.vpnDial===((selfId||'')+'|'+t.name)&&selfId)||null:vpnPeerOf(t,selfId,s.ips||[]);
+    const linked=peer&&selfId&&S.links.some(l=>l.kind==='vpn'&&((l.a===selfId&&l.b===peer.id)||(l.b===selfId&&l.a===peer.id)));
+    return {...t,peer,linked,key:'vpn:'+t.name}; }); }
+/* A firewall NetSketch drew at the far end of a tunnel is filled in when its own config is imported */
+const impStub=()=>{ const s=imp.res&&curSrc(); if(!s||imp.nodeId||!s.ips) return null; return S.nodes.find(m=>m.vpnPeer&&m.ip&&s.ips.includes(m.ip))||null; };
+const vpnNets=a=>a.length?a.join(', '):'any';
+function vpnList(v){ if(!v.length) return '';
+  const stub=impStub();
+  return `<p class="imp-sub">${v.length} IPsec VPN tunnel${v.length>1?'s':''}</p>${stub?`<div class="imp-det" style="margin-bottom:6px">This firewall is the far end of a tunnel already in the diagram: NetSketch fills in <b>${esc(stub.label)}</b> instead of adding a new device.</div>`:''}`+
+    v.map(t=>`<label class="chk"><input type="checkbox" data-vpn="${esc(t.key)}" ${imp.vpnSkip.has(t.key)||t.linked?'':'checked'} ${t.linked?'disabled':''}><span><b>${esc(t.name)}</b> ${t.dial?'<span class="muted">dial-up (FortiClient / remote users)</span>':`→ <span class="mono">${esc(t.remote)}</span>`}<br>
+      <span class="muted">${t.linked?`Already drawn to ${esc(t.peer.label)}.`:t.peer?`Connects to <b>${esc(t.peer.label)}</b>, already in the diagram.`:t.dial?'Adds a “VPN users” device.':'Adds the firewall at the other end.'}
+      ${t.dial?'':` Local ${esc(vpnNets(t.local))} ↔ remote ${esc(vpnNets(t.remoteNets))}.`}</span></span></label>`).join('');
+}
+function wireVpn(box){ box.querySelectorAll('[data-vpn]').forEach(x=>x.addEventListener('change',()=>{ if(x.checked) imp.vpnSkip.delete(x.dataset.vpn); else imp.vpnSkip.add(x.dataset.vpn); })); }
+function applyVpn(n,tunnels){
+  let peers=0, links=0;
+  const free=(x,y)=>!S.nodes.some(m=>m!==n&&Math.abs(m.x-x)<170&&Math.abs(m.y-y)<110);
+  const spot=()=>{ for(let r=0;r<60;r++){ const x=snap(n.x+260+Math.floor(r/4)*190), y=snap(n.y-220+(r%4)*130); if(free(x,y)) return {x,y}; } return {x:n.x+300,y:n.y}; };
+  for(const t of tunnels){
+    let p=t.dial?S.nodes.find(m=>m.vpnDial===n.id+'|'+t.name):vpnPeerOf(t,n.id,n.ips||[]);
+    const notes=t.dial?`Dial-up IPsec VPN “${t.name}” on ${n.label}.`:`Far end of IPsec tunnel “${t.name}” on ${n.label}${t.comment?' ('+t.comment+')':''}.\nPeer address: ${t.remote}\nSubnets here: ${vpnNets(t.remoteNets)}\nSubnets at ${n.label}: ${vpnNets(t.local)}`;
+    if(!p){ const xy=spot();
+      p=t.dial?{id:uid('n'),type:'laptop',x:xy.x,y:xy.y,label:`VPN users (${t.name})`,ip:'',model:'',notes,brand:'',sku:'',ports:{},vpnDial:n.id+'|'+t.name}
+              :{id:uid('n'),type:'firewall',x:xy.x,y:xy.y,label:t.comment&&t.comment.length<=28?t.comment:t.name,ip:IP4.test(t.remote)?t.remote:'',model:'',notes,brand:'',sku:'',ports:{},vpnPeer:true,ips:IP4.test(t.remote)?[t.remote]:[]};
+      S.nodes.push(p); peers++; }
+    if(S.links.some(l=>l.kind==='vpn'&&((l.a===n.id&&l.b===p.id)||(l.b===n.id&&l.a===p.id)))) continue;
+    S.links.push({id:uid('l'),a:n.id,b:p.id,kind:'vpn',label:`IPsec ${t.name}`,pa:'',pb:''}); links++;
+  }
+  return {peers,links};
+}
 function applyImport(){
   if(!imp) return;
   const beforeIds=new Set(S.nodes.map(n=>n.id)); setTimeout(()=>revealTypes(S.nodes.filter(n=>!beforeIds.has(n.id)).map(n=>n.type)),0);
@@ -2553,12 +2618,14 @@ function applyImport(){
     mutate(()=>{const pre=lldpState(tgt.id); r=applyConns(tgt.id,conns); d=addPeripherals(tgt.id,per,ch,autoZone); lldpRecord(tgt.id,pre,[connsText(r),d?`${d} device${d>1?'s':''} added`:''].filter(Boolean).join(', ')||'No changes',S.nodes.filter(n=>!beforeIds.has(n.id)).map(n=>n.id));}); closeImport(); fit(); select('node',tgt.id);
     toast(`${[connsText(r),d?`${d} device${d>1?'s':''} added`:''].filter(Boolean).join(', ')} for ${tgt.label} from LLDP. Undo removes them.`); return; }
   const s=curSrc(), {rows,newV}=impRows(); if(!rows.length) return;
-  let n=imp.nodeId&&node(imp.nodeId); const isNew=!n, type=impType(), o={...imp.o}, brand=imp.brand, sku=imp.sku, fmt=FORMATS[imp.detected];
+  const stub=impStub(), stubLabel=stub&&stub.label, vpnSel=impVpn().filter(t=>!t.linked&&!imp.vpnSkip.has(t.key)); let vr={peers:0,links:0};
+  let n=(imp.nodeId&&node(imp.nodeId))||stub; const isNew=!n, type=impType(), o={...imp.o}, brand=imp.brand, sku=imp.sku, fmt=FORMATS[imp.detected];
   const conns=impConns().filter(c=>!imp.skip.has(c.key)), per=imp.addNew?impPeripherals():[], ch=imp.nd; let cr={added:0,upd:0}, nd=0, haNew=null;
   mutate(()=>{
     if(!n){const r=svg.getBoundingClientRect();
       n={id:uid('n'),type,x:snap((r.width/2-view.x)/view.k),y:snap((r.height/2-view.y)/view.k),label:s.hostname||TYPES[type].name,ip:'',model:'',notes:'',brand:'',sku:'',ports:{}}; S.nodes.push(n);}
-    n.brand=brand; n.sku=sku;
+    n.brand=brand; n.sku=sku; if(n===stub){ n.type=type; delete n.vpnPeer; }
+    if(s.ips&&s.ips.length) n.ips=[...new Set([...(n.ips||[]),...s.ips])];
     if(o.name&&s.hostname) n.label=s.hostname;
     if(o.ip&&s.ip) n.ip=s.ip;
     if(o.vlans&&newV.length){S.vlans.push(...newV); S.vlans.sort((a,b)=>a.id-b.id);}
@@ -2570,11 +2637,12 @@ function applyImport(){
     nd=addPeripherals(n.id,per,ch,autoZone);
     if(imp.lldp&&imp.lldp.trim()) lldpRecord(n.id,pre,[connsText(cr),nd?`${nd} device${nd>1?'s':''} added`:''].filter(Boolean).join(', ')||'No changes',S.nodes.filter(m=>!beforeIds.has(m.id)&&m.id!==n.id).map(m=>m.id));
     if(s.ha&&imp.haPeer&&!clusterOf(n.id)) haNew=addHaPeer(n,{mirror:true,mode:s.ha.mode,name:s.ha.name,hb:s.ha.hb});
+    if(vpnSel.length) vr=applyVpn(n,vpnSel);
   });
-  if(nd) fit();
+  if(nd||vr.peers) fit();
   closeImport(); select('node',n.id);
   const ct=connsText(cr);
-  toast(`Imported ${rows.length} port${rows.length===1?'':'s'}${o.vlans&&newV.length?`, ${newV.length} VLAN${newV.length>1?'s':''}`:''}${ct?', '+ct:''}${nd?`, ${nd} new device${nd>1?'s':''}`:''}${haNew?`, HA peer ${haNew.label}`:''} from the ${fmt.replace(/ config.*$/,'')} config.`);
+  toast(`Imported ${rows.length} port${rows.length===1?'':'s'}${o.vlans&&newV.length?`, ${newV.length} VLAN${newV.length>1?'s':''}`:''}${ct?', '+ct:''}${nd?`, ${nd} new device${nd>1?'s':''}`:''}${haNew?`, HA peer ${haNew.label}`:''}${vr.links?`, ${vr.links} VPN tunnel${vr.links>1?'s':''}`:''}${vr.peers?` (${vr.peers} remote device${vr.peers>1?'s':''} added)`:''}${stub?`; ${stubLabel} filled in`:''} from the ${fmt.replace(/ config.*$/,'')} config.`);
 }
 /* A terminal capture (SSH helper file, PuTTY log, pasted session) holds both the config and the LLDP output: split it */
 function cleanTerm(t){
@@ -2929,7 +2997,7 @@ async function busy(btn,label,fn){const t=btn.textContent; btn.disabled=true; bt
 const dateStr=()=>new Date().toISOString().slice(0,10);
 
 /* ---- Updates: compare this copy with version.json in the GitHub repo ---- */
-const NS_VERSION='1.0.0';
+const NS_VERSION='1.1.0';
 const UPD={repo:'DeslypereBram/netsketch-releases',branch:'main'}; // public: holds only NetSketch.html and version.json; the source stays in the private Netsketch repo
 const upRaw=f=>`https://raw.githubusercontent.com/${UPD.repo}/${UPD.branch}/${f}`;
 const upPage=`https://github.com/${UPD.repo}`;
