@@ -1,11 +1,8 @@
 {
-  "version": "1.4.0",
+  "version": "1.4.1",
   "date": "2026-11-17",
   "file": "NetSketch.html",
   "notes": [
-    "Compare: put this diagram next to an open tab or a .netsketch file and see what changed",
-    "Lists new, removed and changed devices (name, IP, model, port settings), cables, VPN tunnels and VLANs",
-    "Show on diagram marks new devices green and changed devices orange",
-    "Copy as text for a ticket or report"
+    "Where do I get the config: the LLDP / CDP commands are now listed per brand, each with a Copy button"
   ]
 }
