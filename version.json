@@ -1,12 +1,9 @@
 {
-  "version": "1.1.0",
+  "version": "1.2.0",
   "date": "2026-11-17",
   "file": "NetSketch.html",
   "notes": [
-    "FortiGate config import finds IPsec VPN tunnels and draws them as VPN cables",
-    "Adds the firewall at the other end of each tunnel, with the subnets on both sides in its notes",
-    "Importing that firewall's own config later fills in the same device instead of adding a new one",
-    "Dial-up VPNs (FortiClient) show as a VPN users device",
-    "Updates now come from the public netsketch-releases repo"
+    "Update replaces this NetSketch file and restarts it (Chrome and Edge)",
+    "The version number is shown under the NetSketch name; click it to check for updates"
   ]
 }
