@@ -1,0 +1,12 @@
+{
+  "version": "1.0.0",
+  "date": "2026-11-16",
+  "file": "NetSketch.html",
+  "notes": [
+    "First version on GitHub",
+    "Update button: checks this repo for a newer NetSketch",
+    "LLDP history: restore one of the last 5 LLDP imports per device",
+    "SSH helper and support-file import for UniFi",
+    "IT-1 theme, logo and Managed by IT1 badge"
+  ]
+}
