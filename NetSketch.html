@@ -22,7 +22,7 @@
   --f-head:"IBM Plex Sans Condensed","IBM Plex Sans","Arial Narrow",system-ui,sans-serif;
   --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
   --shadow:0 8px 28px rgba(20,38,48,.16);
-  --it1-fill:#111111; --it1-ring:#ffffff; --it1-mark:#ffffff;
+  --it1-fill:#111111; --it1-ring:#ffffff; --it1-mark:#ffffff; --chg:#c46d0a; --chg-add:#2f7d3b;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#0f1519; --panel:#161e24; --canvas:#12191e; --ink:#e1e8eb; --muted:#8c9da7; --line:#28343c; --grid:#27333b;
@@ -30,7 +30,7 @@
   --c-net:#4cb6ba; --c-sec:#e2735d; --c-srv:#9198ec; --c-end:#9aabb5; --c-ext:#d9a148;
   --t-net:#14302f; --t-sec:#36201d; --t-srv:#20233c; --t-end:#1d262c; --t-ext:#352a16;
   --l-eth:#a9b8c0; --l-fiber:#e39144; --l-wifi:#4cb6ba; --l-vpn:#b48ce4; --danger:#e2735d; --warn-bg:#3a211c;
-  --chassis:#0a0f12; --chassis-line:#25313a; --it1-fill:#000000; --it1-ring:#e1e8eb; --it1-mark:#ffffff;
+  --chassis:#0a0f12; --chassis-line:#25313a; --it1-fill:#000000; --it1-ring:#e1e8eb; --it1-mark:#ffffff; --chg:#e8a04a; --chg-add:#5ec27a;
   --shadow:0 8px 28px rgba(0,0,0,.5); color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0f1519; --panel:#161e24; --canvas:#12191e; --ink:#e1e8eb; --muted:#8c9da7; --line:#28343c; --grid:#27333b;
@@ -38,7 +38,7 @@
   --c-net:#4cb6ba; --c-sec:#e2735d; --c-srv:#9198ec; --c-end:#9aabb5; --c-ext:#d9a148;
   --t-net:#14302f; --t-sec:#36201d; --t-srv:#20233c; --t-end:#1d262c; --t-ext:#352a16;
   --l-eth:#a9b8c0; --l-fiber:#e39144; --l-wifi:#4cb6ba; --l-vpn:#b48ce4; --danger:#e2735d; --warn-bg:#3a211c;
-  --chassis:#0a0f12; --chassis-line:#25313a; --it1-fill:#000000; --it1-ring:#e1e8eb; --it1-mark:#ffffff;
+  --chassis:#0a0f12; --chassis-line:#25313a; --it1-fill:#000000; --it1-ring:#e1e8eb; --it1-mark:#ffffff; --chg:#e8a04a; --chg-add:#5ec27a;
   --shadow:0 8px 28px rgba(0,0,0,.5); color-scheme:dark}
 /* IT-1 brand theme: black, orange (#e29725 from the logo) and brushed silver */
 :root[data-theme="it1"]{
@@ -47,7 +47,7 @@
   --c-net:#e29725; --c-sec:#ef6a4c; --c-srv:#c9ccd1; --c-end:#9c9c9c; --c-ext:#f2c879;
   --t-net:#2e1f08; --t-sec:#341711; --t-srv:#232427; --t-end:#1b1b1b; --t-ext:#33280f;
   --l-eth:#b5b5b5; --l-fiber:#f2c879; --l-wifi:#e29725; --l-vpn:#c79bf0; --danger:#ef6a4c; --warn-bg:#3a1a12;
-  --chassis:#000000; --chassis-line:#333333; --port-empty:#3d3d3d; --ok:#f2c879; --it1-fill:#000000; --it1-ring:#e29725; --it1-mark:#e29725;
+  --chassis:#000000; --chassis-line:#333333; --port-empty:#3d3d3d; --ok:#f2c879; --it1-fill:#000000; --it1-ring:#e29725; --it1-mark:#e29725; --chg:#f2c879; --chg-add:#7fd38f;
   --shadow:0 8px 28px rgba(0,0,0,.7); color-scheme:dark}
 
 *{box-sizing:border-box}
@@ -407,8 +407,28 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .upver dt{color:var(--muted)} .upver dd{margin:0;font-family:var(--f-mono);font-weight:600}
 .upnotes{margin:0;padding:8px 10px 8px 26px;background:var(--canvas);border:1px solid var(--line);border-radius:6px;font-size:12.5px;line-height:1.5;max-height:200px;overflow:auto}
 .upnew{color:var(--accent)}
+.chg-box{border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:0 0 12px;background:var(--panel)}
+.chg-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.chg-sum{margin:6px 0 4px;font-size:12.5px;font-weight:600}
+.chg-scroll{max-height:240px;overflow:auto}
+.chg-g{margin:8px 0 3px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.chg-list{list-style:none;margin:0;padding:0;display:grid;gap:3px;font-size:12px;line-height:1.4}
+.chg-list li{display:grid;grid-template-columns:16px 1fr;gap:4px;align-items:start;overflow-wrap:anywhere}
+.chg-list .mk{font-family:var(--f-mono);font-weight:700;text-align:center;border-radius:3px;font-size:11px;line-height:16px}
+.chg-add .mk{color:var(--chg-add);background:color-mix(in srgb,var(--chg-add) 14%,transparent)}
+.chg-del .mk{color:var(--danger);background:color-mix(in srgb,var(--danger) 14%,transparent)}
+.chg-chg .mk{color:var(--chg);background:color-mix(in srgb,var(--chg) 16%,transparent)}
+.chg-info .mk{color:var(--muted);background:var(--hover)}
+.lh-row{display:flex;gap:8px;align-items:center;justify-content:space-between}
+.lh-k{font-weight:500;font-size:10.5px;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 4px;margin-left:4px}
+.lh-src{font-family:var(--f-mono);font-size:10.5px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lh-d{margin-top:4px;font-size:12px}
+.lh-d summary{cursor:pointer;color:var(--accent);font-size:11.5px}
+.lh-d .btn{margin-top:6px}
+.fp-port.chg{box-shadow:0 0 0 2px var(--chg)}
+.k-chg{width:10px;height:10px;border-radius:2px;box-shadow:0 0 0 2px var(--chg)}
 .lhist{list-style:none;margin:0 0 12px;padding:0;display:grid}
-.lh{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:6px 0;border-top:1px solid var(--line);font-size:12px}
+.lh{display:block;padding:6px 0;border-top:1px solid var(--line);font-size:12px}
 .lh:first-child{border-top:0}
 .lh-t{display:grid;min-width:0}
 .lh-t b{font-weight:600;font-size:12px}
@@ -948,9 +968,11 @@ function normalize(d){
   const zones=(Array.isArray(d.zones)?d.zones:[]).filter(Boolean).map(z=>({id:s(z.id)||uid('z'),x:+z.x||0,y:+z.y||0,w:Math.max(80,+z.w||200),h:Math.max(60,+z.h||150),label:s(z.label),subnet:s(z.subnet),color:ZCOLORS[z.color]?z.color:'net',...(z.of?{of:s(z.of)}:{})}));
   const clusters=(Array.isArray(d.clusters)?d.clusters:[]).filter(c=>c&&Array.isArray(c.members)).map(c=>({id:s(c.id)||uid('c'),members:[...new Set(c.members.map(String))].filter(m=>ids.has(m)),mode:HAMODES[c.mode]?c.mode:'ap',name:s(c.name)})).filter(c=>c.members.length>1);
   const out={title:s(d.title)||'Untitled network',vlans,nodes,links,zones,clusters};
-  if(d.lldpHist&&typeof d.lldpHist==='object'){ const h={}; const st=x=>x&&Array.isArray(x.links)&&Array.isArray(x.nodes)?{links:x.links.filter(l=>l&&LINKS[l.kind]).map(l=>({a:s(l.a),b:s(l.b),kind:l.kind,label:s(l.label),pa:s(l.pa),pb:s(l.pb)})),nodes:x.nodes.filter(n=>n&&TYPES[n.type])}:null;
+  if(d.lldpHist&&typeof d.lldpHist==='object'){ const h={}; const dv=x=>x&&typeof x==='object'?JSON.parse(JSON.stringify({label:s(x.label),ip:s(x.ip),brand:s(x.brand),sku:s(x.sku),model:s(x.model),ports:x.ports&&typeof x.ports==='object'?x.ports:{}})):null;
+    const st=x=>x&&Array.isArray(x.links)&&Array.isArray(x.nodes)?{links:x.links.filter(l=>l&&LINKS[l.kind]).map(l=>({a:s(l.a),b:s(l.b),kind:l.kind,label:s(l.label),pa:s(l.pa),pb:s(l.pb)})),nodes:x.nodes.filter(n=>n&&TYPES[n.type]),dev:dv(x.dev)}:null;
+    const chg=a=>Array.isArray(a)?a.filter(c=>c&&typeof c==='object').slice(0,400).map(c=>({g:s(c.g),k:['add','del','chg','info'].includes(c.k)?c.k:'info',t:s(c.t),d:s(c.d)})):[];
     for(const [k,v] of Object.entries(d.lldpHist)){ if(!ids.has(k)||!v||!Array.isArray(v.list)) continue;
-      const mk=a=>Array.isArray(a)?a.map(String):[]; const list=v.list.map(e=>{const x=st(e); return x&&{...x,t:s(e.t),sum:s(e.sum),made:mk(e.made)};}).filter(Boolean).slice(-LLDP_KEEP); if(!list.length) continue;
+      const mk=a=>Array.isArray(a)?a.map(String):[]; const list=v.list.map(e=>{const x=st(e); return x&&{...x,t:s(e.t),sum:s(e.sum),made:mk(e.made),src:s(e.src),kind:['config','lldp'].includes(e.kind)?e.kind:'lldp',changes:chg(e.changes),chPorts:mk(e.chPorts)};}).filter(Boolean).slice(-LLDP_KEEP); if(!list.length) continue;
       h[k]={list,base:st(v.base),made:mk(v.made),active:Number.isInteger(v.active)&&v.active>=-1&&v.active<list.length?v.active:list.length-1}; }
     if(Object.keys(h).length) out.lldpHist=h; }
   return out;
@@ -1283,16 +1305,18 @@ const opt=(v,label,cur)=>`<option value="${esc(v)}"${v===cur?' selected':''}>${e
 const vlanOpts=(cur,noneLabel='None')=>opt('',noneLabel,cur==null?'':String(cur))+S.vlans.map(v=>opt(String(v.id),`${v.id} · ${v.name}`,cur==null?'':String(cur))).join('');
 const tagList=c=>c.t.length?`<span class="vtags">${c.t.slice().sort((a,b)=>a-b).map(v=>vtag(v,true)).join('')}</span>`:'<span class="none">–</span>';
 
+function lastChanged(o){ const h=S.lldpHist&&S.lldpHist[o.id]; if(!h||!h.list.length||h.active!==h.list.length-1) return new Set(); return new Set(h.list[h.list.length-1].chPorts||[]); }
 function faceplate(o,ports){
+  const chs=lastChanged(o);
   const groups=[]; for(const p of ports){const g=groups[groups.length-1]; if(g&&isFiber(g[0])===isFiber(p)) g.push(p); else groups.push([p]);}
   const linked=ports.filter(p=>linkAt(o.id,p.n)).length;
   return `<div class="fp"><div class="fp-row">`+groups.map(g=>`<div class="fp-group${g.length>10?' r2':''}">`+g.map(p=>{
     const c=getCfg(o,p.n), l=linkAt(o.id,p.n), ts=c.t.slice().sort((a,b)=>a-b);
     const grad=ts.length?`linear-gradient(90deg,${ts.map((v,i)=>`${vcolor(v)} ${i/ts.length*100}% ${(i+1)/ts.length*100}%`).join(',')})`:'transparent';
     const tip=`${p.n} · ${KIND[p.k]}${p.poe?' · PoE':''}${p.wan?' · WAN':''}\nUntagged: ${vtxt(c.u)}${ts.length?'\nTagged: '+ts.join(', '):''}${l?'\nTo: '+(peer(l,o.id).n?.label||''):''}${c.desc?'\n'+c.desc:''}`;
-    return `<button class="fp-port${isFiber(p)?' fiber':''}${l?' linked':''}${c.off?' off':''}${selPort===p.n?' on':''}" data-port="${esc(p.n)}" style="--pc:${c.off?'var(--port-empty)':vcolor(c.u)}" title="${esc(tip)}" aria-label="${esc(p.n)}">${esc(p.s)}<i class="led"></i><b class="tg" style="background:${grad}"></b></button>`;}).join('')+`</div>`).join('')+
+    return `<button class="fp-port${isFiber(p)?' fiber':''}${l?' linked':''}${c.off?' off':''}${chs.has(p.n)?' chg':''}${selPort===p.n?' on':''}" data-port="${esc(p.n)}" style="--pc:${c.off?'var(--port-empty)':vcolor(c.u)}" title="${esc(tip)}" aria-label="${esc(p.n)}">${esc(p.s)}<i class="led"></i><b class="tg" style="background:${grad}"></b></button>`;}).join('')+`</div>`).join('')+
     `</div><div class="fp-meta"><span>${esc(catOf(o).name)}</span><span>${linked}/${ports.length} cabled</span></div></div>
-    <div class="fp-key"><span><i class="k-led"></i>Cabled</span><span><i class="k-tg"></i>Tagged VLANs</span><span><i class="k-fib"></i>SFP</span><span>Colour = untagged VLAN</span></div>`;
+    <div class="fp-key"><span><i class="k-led"></i>Cabled</span><span><i class="k-tg"></i>Tagged VLANs</span><span><i class="k-fib"></i>SFP</span><span>Colour = untagged VLAN</span>${chs.size?'<span><i class="k-chg"></i>Changed in the last import</span>':''}</div>`;
 }
 function portEditor(o,ports){
   const p=ports.find(p=>p.n===selPort); if(!p) return '';
@@ -1326,12 +1350,13 @@ const LLDP_KEEP=5;
 function lldpState(id){
   const links=S.links.filter(l=>l.a===id||l.b===id).map(l=>({a:l.a,b:l.b,kind:l.kind,label:l.label,pa:l.pa,pb:l.pb}));
   const seen=new Set(), nodes=links.map(l=>node(l.a===id?l.b:l.a)).filter(n=>n&&!seen.has(n.id)&&seen.add(n.id)).map(n=>JSON.parse(JSON.stringify(n)));
-  return {links,nodes};
+  const D=node(id), dev=D?JSON.parse(JSON.stringify({label:D.label,ip:D.ip,brand:D.brand,sku:D.sku,model:D.model,ports:D.ports||{}})):null;
+  return {links,nodes,dev};
 }
-function lldpRecord(id,pre,sum,made){
+function lldpRecord(id,pre,sum,made,extra){
   if(!S.lldpHist) S.lldpHist={}; const h=S.lldpHist[id]||(S.lldpHist[id]={list:[],base:pre,active:-1});
-  h.list.push({t:new Date().toISOString(),sum,made:made||[],...lldpState(id)});
-  while(h.list.length>LLDP_KEEP){const old=h.list.shift(); h.base={links:old.links,nodes:old.nodes}; h.made=[...new Set([...(h.made||[]),...(old.made||[])])];}
+  h.list.push({t:new Date().toISOString(),sum,made:made||[],...(extra||{}),...lldpState(id)});
+  while(h.list.length>LLDP_KEEP){const old=h.list.shift(); h.base={links:old.links,nodes:old.nodes,dev:old.dev}; h.made=[...new Set([...(h.made||[]),...(old.made||[])])];}
   h.active=h.list.length-1;
 }
 function lldpRestore(id,idx){
@@ -1340,7 +1365,11 @@ function lldpRestore(id,idx){
   const other=l=>l.a===id?l.b:l.a, key=l=>{const o=other(l); return `${o}|${l.a===id?l.pa:l.pb}|${l.a===id?l.pb:l.pa}`;};
   const want=new Set(st.links.map(key));
   const cand=new Set([...(h.made||[]),...h.list.flatMap(e=>e.made||[])]), keepN=new Set(st.nodes.map(n=>n.id));
-  let removed=0, added=0, gone=0, back=0;
+  let removed=0, added=0, gone=0, back=0, devBack=false;
+  if(st.dev){ const nd=normalize({title:'x',vlans:S.vlans,nodes:[{id:'x',type:D.type,x:0,y:0,...st.dev}],links:[],zones:[],clusters:[]}).nodes[0];
+    if(nd){ const before=JSON.stringify([D.label,D.ip,D.brand,D.sku,D.model,D.ports]);
+      Object.assign(D,{label:nd.label||D.label,ip:nd.ip,brand:nd.brand,sku:nd.sku,model:nd.model,ports:nd.ports});
+      devBack=before!==JSON.stringify([D.label,D.ip,D.brand,D.sku,D.model,D.ports]); } }
   S.links=S.links.filter(l=>{ if((l.a===id||l.b===id)&&!want.has(key(l))){removed++; return false;} return true; });
   const have=new Set(S.links.filter(l=>l.a===id||l.b===id).map(key));
   for(const l of st.links){ if(have.has(key(l))) continue; const o=other(l);
@@ -1354,16 +1383,18 @@ function lldpRestore(id,idx){
   if(z){ const mem=S.nodes.filter(n=>!INFRA.has(n.type)&&S.links.some(l=>(l.a===id&&l.b===n.id)||(l.b===id&&l.a===n.id)));
     S.zones=S.zones.filter(q=>q!==z); if(mem.length){ const r=groupZone(D,mem); Object.assign(r.z,{id:z.id,label:z.label,subnet:z.subnet,color:z.color}); } }
   h.active=idx;
-  return {removed,added,gone,back};
+  return {removed,added,gone,back,devBack};
 }
 const lldpWhen=t=>{const d=new Date(t); if(isNaN(d)) return ''; const same=d.toDateString()===new Date().toDateString();
   return (same?'Today':d.toLocaleDateString(undefined,{day:'numeric',month:'short',year:d.getFullYear()===new Date().getFullYear()?undefined:'numeric'}))+' '+d.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'});};
 function lldpHistHTML(o){
   const h=S.lldpHist&&S.lldpHist[o.id]; if(!h||!h.list.length) return '';
-  const row=(i,when,sum,cnt)=>`<li class="lh${h.active===i?' on':''}"><span class="lh-t"><b>${esc(when)}</b><span>${esc(sum)}</span></span>${h.active===i?'<span class="lh-cur">Shown</span>':`<button class="btn sm" data-lldp-restore="${i}">Restore</button>`}</li>`;
-  const items=h.list.map((e,i)=>row(i,lldpWhen(e.t),`${e.sum} · ${e.links.length} cable${e.links.length===1?'':'s'}`)).reverse();
-  if(h.base) items.push(row(-1,'Before these imports',`${h.base.links.length} cable${h.base.links.length===1?'':'s'}`));
-  return `<h3>LLDP history</h3><p class="tip" style="margin:0 0 6px">The last ${LLDP_KEEP} LLDP imports on this device. Restore puts its cables and the devices behind them back as they were then. Undo (Ctrl+Z) takes a restore back.</p><ul class="lhist">${items.join('')}</ul>`;
+  const row=(i,e)=>{ const base=i<0, when=base?'Before these imports':lldpWhen(e.t), kind=base?'':e.kind==='config'?'Config':'LLDP';
+    const sum=base?`${e.links.length} cable${e.links.length===1?'':'s'}`:e.sum, ch=!base&&e.changes&&e.changes.length;
+    return `<li class="lh${h.active===i?' on':''}"><div class="lh-row"><span class="lh-t"><b>${esc(when)}${kind?` <span class="lh-k">${kind}</span>`:''}</b><span>${esc(sum)}</span>${!base&&e.src?`<span class="lh-src" title="${esc(e.src)}">${esc(e.src)}</span>`:''}</span>${h.active===i?'<span class="lh-cur">Shown</span>':`<button class="btn sm" data-lldp-restore="${i}">Restore</button>`}</div>
+      ${ch?`<details class="lh-d"><summary>Show ${e.changes.length} change${e.changes.length>1?'s':''}</summary>${chgListHTML(e.changes)}<button type="button" class="btn sm" data-hist-copy="${i}">Copy as text</button></details>`:''}</li>`; };
+  const items=h.list.map((e,i)=>row(i,e)).reverse(); if(h.base) items.push(row(-1,h.base));
+  return `<h3>History</h3><p class="tip" style="margin:0 0 6px">The last ${LLDP_KEEP} config and LLDP imports on this device. Restore puts its port settings, cables and the devices behind them back as they were then. Undo (Ctrl+Z) takes a restore back.</p><ul class="lhist">${items.join('')}</ul>`;
 }
 function renderPanel(){
   renderViewCtl();
@@ -1495,11 +1526,13 @@ function wireInspector(el,o){
   on('[data-act="allports"]','click',()=>{showAllPorts=!showAllPorts; renderPanel();});
   on('[data-act="matrix"]','click',openMatrix);
   on('[data-act="import"]','click',()=>openImport(o.id));
+  el.querySelectorAll('[data-hist-copy]').forEach(b=>b.addEventListener('click',()=>{ const e=S.lldpHist[o.id].list[+b.dataset.histCopy]; if(!e) return;
+    copyPlain(chgText(e.changes,`NetSketch: changes for ${o.label}`,e.src,lldpWhen(e.t)),'Changes copied. Paste them in your ticket.'); }));
   el.querySelectorAll('[data-lldp-restore]').forEach(b=>b.addEventListener('click',()=>{ const i=+b.dataset.lldpRestore; let r;
     const bIds=new Set(S.nodes.map(n=>n.id)); mutate(()=>{r=lldpRestore(o.id,i);}); if(!r) return;
     revealTypes(S.nodes.filter(n=>!bIds.has(n.id)).map(n=>n.type));
-    const parts=[r.removed&&`${r.removed} cable${r.removed>1?'s':''} removed`,r.added&&`${r.added} cable${r.added>1?'s':''} back`,r.gone&&`${r.gone} device${r.gone>1?'s':''} removed`,r.back&&`${r.back} device${r.back>1?'s':''} back`].filter(Boolean);
-    toast(parts.length?`Restored LLDP for ${o.label}: ${parts.join(', ')}. Undo takes it back.`:`${o.label} already matches that LLDP import.`); }));
+    const parts=[r.devBack&&'port settings back',r.removed&&`${r.removed} cable${r.removed>1?'s':''} removed`,r.added&&`${r.added} cable${r.added>1?'s':''} back`,r.gone&&`${r.gone} device${r.gone>1?'s':''} removed`,r.back&&`${r.back} device${r.back>1?'s':''} back`].filter(Boolean);
+    toast(parts.length?`Restored ${o.label}: ${parts.join(', ')}. Undo takes it back.`:`${o.label} already matches that import.`); }));
   on('[data-goto-link]','click',x=>select('link',x.dataset.gotoLink));
   on('[data-goto-node]','click',x=>select('node',x.dataset.gotoNode));
   on('[data-act="haadd"]','click',()=>{const mirror=!!el.querySelector('#p-hamirror')?.checked; let n; mutate(()=>{n=addHaPeer(o,{mirror});});
@@ -2470,8 +2503,9 @@ function wirePeri(box,onChange){
   box.querySelectorAll('[data-nd]').forEach(x=>x.addEventListener('change',()=>{const st=imp.nd.get(x.dataset.nd)||{}; st.on=x.checked; imp.nd.set(x.dataset.nd,st); onChange();}));
   box.querySelectorAll('[data-ndt]').forEach(x=>x.addEventListener('change',()=>{const st=imp.nd.get(x.dataset.ndt)||{}; st.type=x.value; imp.nd.set(x.dataset.ndt,st);}));
 }
-function lldpBtn(){const btn=$('#impApply'), c=lldpOnlyConns().filter(x=>!imp.skip.has(x.key)).length, d=nOn(impPeripherals());
-  btn.disabled=!(c||d); btn.textContent=(c||d)?'Add '+[c?`${c} cable${c>1?'s':''}`:'',d?`${d} device${d>1?'s':''}`:''].filter(Boolean).join(' and '):'Import';}
+function lldpBtn(){const btn=$('#impApply'), all=lldpOnlyConns().filter(x=>!imp.skip.has(x.key)), c=all.filter(x=>!x.update).length, u=all.length-c, d=nOn(impPeripherals()), mv=impMoves(node(imp.nodeId)).length;
+  btn.disabled=!(c||u||d||mv);
+  btn.textContent=(c||d)?'Add '+[c?`${c} cable${c>1?'s':''}`:'',d?`${d} device${d>1?'s':''}`:''].filter(Boolean).join(' and ')+(mv?`, move ${mv}`:''):mv?`Move ${mv} cable${mv>1?'s':''}`:u?`Update ${u} cable${u>1?'s':''}`:'Import';}
 function lldpOnlyConns(){
   const tgt=node(imp.nodeId), ps=portsOf(tgt);
   return computeConns({targetId:tgt.id,ports:{},neighbors:imp.nb,names:[],mapLocal:v=>{if(!ps) return v.length<=20?v:''; const m=mapPort(v,ps); return m?m.p.n:'';}});
@@ -2530,10 +2564,10 @@ function renderImport(){
   if(!imp.res&&imp.lldp.trim()){
     if(!tgt){box.innerHTML=`<p class="imp-sub">Preview</p><p class="note">To add a new device, paste its config too, so NetSketch knows which device it is. To connect a device that is already in the diagram, select it first and choose Import config.</p>`; return;}
     const conns=lldpOnlyConns(), per=impPeripherals();
-    box.innerHTML=`<p class="imp-sub">Preview</p><div class="imp-det">LLDP / CDP neighbours for <b>${esc(tgt.label)}</b>. Only cables and new devices are added; port settings stay as they are.</div>`+
+    box.innerHTML=`<p class="imp-sub">Preview</p><div class="imp-det">LLDP / CDP neighbours for <b>${esc(tgt.label)}</b>. Only cables and new devices are added; port settings stay as they are.</div>`+changesHTML()+
       (conns.length?`<p class="imp-sub">${conns.length} connection${conns.length>1?'s':''} to devices in the diagram</p>${connList(conns)}`:'')+periList(per)+
       (!conns.length&&!per.length?`<p class="note">Nothing new: these neighbours are already in the diagram and cabled on these ports.</p>`:'');
-    wireConnList(box); wirePeri(box,lldpBtn); lldpBtn(); return;
+    wireConnList(box); wirePeri(box,()=>{lldpBtn(); renderImport();}); wireChanges(box); lldpBtn(); return;
   }
   if(!imp.res){box.innerHTML=`<p class="imp-sub">Preview</p><p class="note">Paste a config or choose a file. You will see the ports and VLANs here before anything changes.</p>`; return;}
   const s=curSrc(), type=impType(), cat=CAT[type], {rows,miss,dup,newV}=impRows(), m=imp.sku&&cat[imp.brand].models[imp.sku];
@@ -2544,6 +2578,7 @@ function renderImport(){
   const v=c=>c.off?'<span class="none">disabled</span>':c.u!=null?vtag(c.u):'<span class="none">–</span>';
   const conns=impConns(), per=impPeripherals();
   box.innerHTML=`<p class="imp-sub">Preview</p>
+    ${changesHTML()}
     <div class="imp-det">Read as <b>${esc(FORMATS[imp.detected])}</b>${s.hostname?` · hostname <b>${esc(s.hostname)}</b>`:''}${s.ip?` · <span class="mono">${esc(s.ip)}</span>`:''}<br>${Object.keys(s.ports).length} interfaces, ${s.vlans.length} VLANs found${tgt?'':impStub()?` · fills in <b>${esc(impStub().label)}</b>`:` · a new ${TYPES[type].name.toLowerCase()} will be added`}</div>
     ${imp.res.sources.length>1?`<div class="field"><label for="imp-src">Device in this config</label><select id="imp-src">${imp.res.sources.map(x=>opt(x.key,x.label,imp.srcKey)).join('')}</select></div>`:''}
     <div class="two"><div class="field"><label for="imp-brand">Brand</label><select id="imp-brand">${Object.entries(cat).map(([k,b])=>opt(k,b.name,imp.brand)).join('')}</select></div>
@@ -2567,17 +2602,18 @@ function renderImport(){
   g('imp-src')?.addEventListener('change',e=>{imp.srcKey=e.target.value; chooseModel(); renderImport();});
   g('imp-brand').addEventListener('change',e=>{imp.brand=e.target.value; imp.sku=bestModel(impType(),imp.brand,Object.keys(curSrc().ports),imp.detected); renderImport();});
   g('imp-sku').addEventListener('change',e=>{imp.sku=e.target.value; renderImport();});
-  g('imp-o-name')?.addEventListener('change',e=>imp.o.name=e.target.checked);
-  g('imp-o-ip')?.addEventListener('change',e=>imp.o.ip=e.target.checked);
-  g('imp-o-vlans')?.addEventListener('change',e=>imp.o.vlans=e.target.checked);
-  g('imp-o-rep')?.addEventListener('change',()=>imp.o.replace=true);
-  g('imp-o-mer')?.addEventListener('change',()=>imp.o.replace=false);
-  wireConnList(box); wirePeri(box,()=>{}); wireVpn(box);
+  const rr=()=>{const st=box.scrollTop; renderImport(); box.scrollTop=st;};
+  g('imp-o-name')?.addEventListener('change',e=>{imp.o.name=e.target.checked; rr();});
+  g('imp-o-ip')?.addEventListener('change',e=>{imp.o.ip=e.target.checked; rr();});
+  g('imp-o-vlans')?.addEventListener('change',e=>{imp.o.vlans=e.target.checked; rr();});
+  g('imp-o-rep')?.addEventListener('change',()=>{imp.o.replace=true; rr();});
+  g('imp-o-mer')?.addEventListener('change',()=>{imp.o.replace=false; rr();});
+  wireConnList(box); wirePeri(box,()=>renderImport()); wireVpn(box); wireChanges(box);
   box.querySelector('#imp-ha')?.addEventListener('change',e=>{imp.haPeer=e.target.checked;});
 }
 const connList=conns=>conns.map(c=>`<label class="chk"><input type="checkbox" data-conn="${esc(c.key)}" ${imp.skip.has(c.key)?'':'checked'}><span><span class="mono">${c.local?esc(c.local):'<span class="none">port not known</span>'}</span> ↔ <b>${esc(c.n.label)}</b>${c.remote?` <span class="mono">${esc(c.remote)}</span>`:''}<br><span class="none">${c.update?'Already connected: fills in the port names. ':''}Found in ${esc(c.via.join(', '))}.</span></span></label>`).join('');
 function wireConnList(box){box.querySelectorAll('[data-conn]').forEach(x=>x.addEventListener('change',()=>{ if(x.checked) imp.skip.delete(x.dataset.conn); else imp.skip.add(x.dataset.conn);
-  if(!imp.res) lldpBtn(); }));}
+  const st=box.scrollTop; renderImport(); box.scrollTop=st; }));}
 /* ---- IPsec VPN tunnels from a firewall config ---- */
 const vpnPeerOf=(t,selfId,selfIps)=>{ if(t.dial||!t.remote) return null; const r=t.remote;
   return S.nodes.find(m=>m.id!==selfId&&['firewall','router','vpn','modem'].includes(m.type)&&(m.ip===r||(m.ips||[]).includes(r)))||null; };
@@ -2596,7 +2632,7 @@ function vpnList(v){ if(!v.length) return '';
       <span class="muted">${t.linked?`Already drawn to ${esc(t.peer.label)}.`:t.peer?`Connects to <b>${esc(t.peer.label)}</b>, already in the diagram.`:t.dial?'Adds a “VPN users” device.':'Adds the firewall at the other end.'}
       ${t.dial?'':` Local ${esc(vpnNets(t.local))} ↔ remote ${esc(vpnNets(t.remoteNets))}.`}</span></span></label>`).join('');
 }
-function wireVpn(box){ box.querySelectorAll('[data-vpn]').forEach(x=>x.addEventListener('change',()=>{ if(x.checked) imp.vpnSkip.delete(x.dataset.vpn); else imp.vpnSkip.add(x.dataset.vpn); })); }
+function wireVpn(box){ box.querySelectorAll('[data-vpn]').forEach(x=>x.addEventListener('change',()=>{ if(x.checked) imp.vpnSkip.delete(x.dataset.vpn); else imp.vpnSkip.add(x.dataset.vpn); renderImport(); })); }
 function applyVpn(n,tunnels){
   let peers=0, links=0;
   const free=(x,y)=>!S.nodes.some(m=>m!==n&&Math.abs(m.x-x)<170&&Math.abs(m.y-y)<110);
@@ -2613,19 +2649,94 @@ function applyVpn(n,tunnels){
   }
   return {peers,links};
 }
+/* ---- Change comparison: what an import changes on a device that is already in the diagram ---- */
+const CHG_GROUPS=[['dev','Device'],['ports','Ports'],['vlans','VLANs'],['conn','Connections'],['vpn','VPN tunnels']];
+const vtx=v=>v==null?'none':String(v);
+function impMoves(tgt){
+  if(!tgt||!imp.nb||!imp.nb.length) return [];
+  const dup=dupNames(imp.nb), map=impMapLocal(), out=[], seen=new Set();
+  for(const nb of imp.nb){ if(nb.via==='FortiLink') continue; const m=neighborNode(nb,tgt.id,dup); if(!m||seen.has(m.id)) continue;
+    const ex=S.links.find(l=>l.kind!=='vpn'&&l.kind!=='ha'&&((l.a===tgt.id&&l.b===m.id)||(l.b===tgt.id&&l.a===m.id))); if(!ex) continue;
+    const mine=ex.a===tgt.id?'pa':'pb', from=ex[mine], to=nb.local?map(nb.local):'';
+    if(from&&to&&from!==to){ const busy=linkAt(tgt.id,to); if(busy&&busy.id!==ex.id) continue; seen.add(m.id); out.push({link:ex.id,side:mine,from,to,n:m}); } }
+  return out;
+}
+function impChanges(){
+  const tgt=(imp.nodeId&&node(imp.nodeId))||impStub(); if(!tgt) return null;
+  const C=[], add=(g,k,t,d,pn)=>C.push({g,k,t,d,pn}); const chPorts=new Set();
+  if(imp.res){ const s=curSrc(), {rows,newV}=impRows(), o=imp.o;
+    if(o.name&&s.hostname&&s.hostname!==tgt.label) add('dev','chg','Name',`${tgt.label} → ${s.hostname}`);
+    if(o.ip&&s.ip&&s.ip!==tgt.ip) add('dev','chg','IP address',`${tgt.ip||'none'} → ${s.ip}`);
+    if(imp.sku&&(tgt.sku!==imp.sku||tgt.brand!==imp.brand)){ const nm=(b,k)=>{const c=CAT[impType()]; return k&&c&&c[b]&&c[b].models[k]?c[b].models[k].name:'none';}; add('dev','chg','Model',`${nm(tgt.brand,tgt.sku)} → ${nm(imp.brand,imp.sku)}`); }
+    const inCfg=new Set();
+    for(const r of rows){ inCfg.add(r.pn); const had=tgt.ports&&tgt.ports[r.pn], a=had?getCfg(tgt,r.pn):null, b=r.c, d=[];
+      if(!a){ if(b.u==null&&!b.t.length&&!b.desc&&!b.off) continue; d.push(`untagged ${vtx(b.u)}`); if(b.t.length) d.push(`tagged ${b.t.slice().sort((x,y)=>x-y).join(', ')}`); if(b.off) d.push('disabled'); if(b.desc) d.push(`“${b.desc}”`);
+        add('ports','add',r.pn,'set: '+d.join(', '),r.pn); chPorts.add(r.pn); continue; }
+      if((a.u??null)!==(b.u??null)) d.push(`untagged ${vtx(a.u)} → ${vtx(b.u)}`);
+      const at=new Set(a.t), bt=new Set(b.t), plus=[...bt].filter(x=>!at.has(x)).sort((x,y)=>x-y), minus=[...at].filter(x=>!bt.has(x)).sort((x,y)=>x-y);
+      if(plus.length||minus.length) d.push('tagged '+[...plus.map(x=>'+'+x),...minus.map(x=>'−'+x)].join(' '));
+      if(!!a.off!==!!b.off) d.push(b.off?'disabled':'enabled');
+      if((a.desc||'')!==(b.desc||'')) d.push(`description “${a.desc||''}” → “${b.desc||''}”`);
+      if(d.length){ add('ports','chg',r.pn,d.join(', '),r.pn); chPorts.add(r.pn); } }
+    if(o.replace&&tgt.ports) for(const pn of Object.keys(tgt.ports)) if(!inCfg.has(pn)){ add('ports','del',pn,'settings cleared: not in this config',pn); chPorts.add(pn); }
+    if(o.vlans) newV.forEach(v=>add('vlans','add','VLAN '+v.id,v.name));
+    s.vlans.forEach(v=>{const e=vlan(v.id); if(e&&v.name&&e.name!==v.name&&!/^VLAN \d+$/i.test(v.name)) add('vlans','info','VLAN '+v.id,`called “${v.name}” in the config, “${e.name}” in the diagram`);});
+    impVpn().filter(t=>!t.linked&&!imp.vpnSkip.has(t.key)).forEach(t=>add('vpn','add',t.name,t.dial?'dial-up VPN':`to ${t.remote}${t.peer?' ('+t.peer.label+')':''}`));
+    const names=new Set((s.vpn||[]).map(t=>'IPsec '+t.name));
+    S.links.filter(l=>l.kind==='vpn'&&(l.a===tgt.id||l.b===tgt.id)&&/^IPsec /.test(l.label)&&!names.has(l.label)).forEach(l=>add('vpn','del',l.label.slice(6),'no longer in this config (the tunnel stays in the diagram)'));
+  }
+  const conns=(imp.res?impConns():lldpOnlyConns()).filter(c=>!imp.skip.has(c.key));
+  conns.forEach(c=>{ if(!c.update) return add('conn','add',c.n.label,`new cable${c.local?' on '+c.local:''}${c.remote&&!macNorm(c.remote)?' ↔ '+c.remote:''}`,c.local);
+    const l=S.links.find(x=>x.id===c.update); if(!l) return; const mine=l.a===tgt.id, d=[];
+    if(c.local&&!(mine?l.pa:l.pb)) d.push(`cable now on ${c.local}`);
+    if(c.remote&&!(mine?l.pb:l.pa)&&!macNorm(c.remote)) d.push(`port ${c.remote} on ${c.n.label} filled in`);
+    if(d.length) add('conn','chg',c.n.label,d.join(', '),c.local); });
+  impMoves(tgt).forEach(m=>{add('conn','chg',m.n.label,`moved from ${m.from} to ${m.to}`,m.to); chPorts.add(m.from); chPorts.add(m.to);});
+  if(imp.addNew) impPeripherals().filter(p=>(imp.nd.get(p.key)||{}).on!==false).forEach(p=>add('conn','add',p.label,`new ${(TYPES[(imp.nd.get(p.key)||{}).type||p.type]||{name:'device'}).name.toLowerCase()}${p.local?' on '+p.local:''}`,p.local));
+  if(imp.lldp&&imp.lldp.trim()&&imp.nb.length){ const dup=dupNames(imp.nb), seen=new Set(imp.nb.map(nb=>neighborNode(nb,tgt.id,dup)).filter(Boolean).map(n=>n.id));
+    const h=S.lldpHist&&S.lldpHist[tgt.id], made=new Set([...((h&&h.made)||[]),...((h&&h.list)||[]).flatMap(e=>e.made||[])]);
+    S.links.filter(l=>['ethernet','fiber','trunk','wireless'].includes(l.kind)&&(l.a===tgt.id||l.b===tgt.id)).forEach(l=>{ const m=node(l.a===tgt.id?l.b:l.a);
+      if(m&&!seen.has(m.id)&&(!INFRA.has(m.type)||made.has(m.id))) add('conn','del',m.label,`not in the LLDP output any more${(l.a===tgt.id?l.pa:l.pb)?' (was on '+(l.a===tgt.id?l.pa:l.pb)+')':''}; the cable stays`); }); }
+  return {tgt,list:C,chPorts:[...chPorts]};
+}
+function chgSummary(ch){
+  const n=(g,k)=>ch.list.filter(c=>c.g===g&&(!k||k.includes(c.k))).length, pl=(x,a,b)=>`${x} ${x===1?a:b}`;
+  const p=n('ports'), v=n('vlans',['add']), ca=n('conn',['add']), mv=ch.list.filter(c=>c.g==='conn'&&/^moved/.test(c.d)).length, gone=n('conn',['del']), vp=n('vpn',['add']), vg=n('vpn',['del']), dv=n('dev'), vi=n('vlans',['info']);
+  return [dv&&pl(dv,'device setting','device settings'),p&&pl(p,'port','ports'),v&&pl(v,'new VLAN','new VLANs'),ca&&pl(ca,'new cable or device','new cables or devices'),mv&&pl(mv,'device moved','devices moved'),gone&&pl(gone,'device not seen','devices not seen'),vp&&pl(vp,'new tunnel','new tunnels'),vg&&pl(vg,'tunnel gone','tunnels gone'),vi&&pl(vi,'VLAN name differs','VLAN names differ')].filter(Boolean).join(' · ');
+}
+const chgMark={add:'+',del:'−',chg:'→',info:'i'};
+function chgListHTML(list){ return CHG_GROUPS.map(([g,label])=>{const it=list.filter(c=>c.g===g); if(!it.length) return '';
+  return `<p class="chg-g">${label}</p><ul class="chg-list">${it.map(c=>`<li class="chg-${c.k}"><span class="mk" aria-hidden="true">${chgMark[c.k]}</span><span><b>${esc(c.t)}</b> ${esc(c.d)}</span></li>`).join('')}</ul>`;}).join(''); }
+function chgText(list,title,src,when){
+  const L=[title]; if(when) L.push(when); if(src) L.push('Source: '+src); L.push('');
+  CHG_GROUPS.forEach(([g,label])=>{const it=list.filter(c=>c.g===g); if(!it.length) return; L.push(label+':'); it.forEach(c=>L.push(`  ${chgMark[c.k]==='i'?'•':chgMark[c.k]} ${c.t}: ${c.d}`)); L.push('');});
+  return L.join('\n').trim()+'\n'; }
+function changesHTML(){
+  const ch=impChanges(); if(!ch) return '';
+  if(!ch.list.length) return `<div class="chg-box"><p class="imp-sub" style="margin-top:0">Changes</p><p class="note" style="margin:0">No changes: ${esc(ch.tgt.label)} already matches this ${imp.res?'config':'LLDP output'}.</p></div>`;
+  return `<div class="chg-box"><div class="chg-head"><p class="imp-sub" style="margin:0">Changes for ${esc(ch.tgt.label)}</p><button type="button" class="btn sm" id="chgCopy">Copy as text</button></div>
+    <p class="chg-sum">${esc(chgSummary(ch))}</p><div class="chg-scroll">${chgListHTML(ch.list)}</div></div>`;
+}
+function copyPlain(text,okMsg){ try{ navigator.clipboard.writeText(text).then(()=>toast(okMsg),()=>toast('Copying is blocked here.')); }catch(e){ toast('Copying is blocked here.'); } }
+function wireChanges(box){ box.querySelector('#chgCopy')?.addEventListener('click',()=>{ const ch=impChanges(); if(!ch) return;
+  copyPlain(chgText(ch.list,`NetSketch: changes for ${ch.tgt.label}`,imp.srcName||'',new Date().toLocaleString()),'Changes copied. Paste them in your ticket.'); }); }
 function applyImport(){
   if(!imp) return;
   const beforeIds=new Set(S.nodes.map(n=>n.id)); setTimeout(()=>revealTypes(S.nodes.filter(n=>!beforeIds.has(n.id)).map(n=>n.type)),0);
   if(!imp.res){ const tgt=imp.nodeId&&node(imp.nodeId); if(!tgt||!imp.lldp.trim()) return;
     const conns=lldpOnlyConns().filter(c=>!imp.skip.has(c.key)), per=imp.addNew?impPeripherals():[], ch=imp.nd;
-    if(!conns.length&&!nOn(per)) return; let r, d=0;
-    mutate(()=>{const pre=lldpState(tgt.id); r=applyConns(tgt.id,conns); d=addPeripherals(tgt.id,per,ch,autoZone); lldpRecord(tgt.id,pre,[connsText(r),d?`${d} device${d>1?'s':''} added`:''].filter(Boolean).join(', ')||'No changes',S.nodes.filter(n=>!beforeIds.has(n.id)).map(n=>n.id));}); closeImport(); fit(); select('node',tgt.id);
-    toast(`${[connsText(r),d?`${d} device${d>1?'s':''} added`:''].filter(Boolean).join(', ')} for ${tgt.label} from LLDP. Undo removes them.`); return; }
+    const chg=impChanges(), moves=impMoves(tgt);
+    if(!conns.length&&!nOn(per)&&!moves.length) return; let r, d=0;
+    mutate(()=>{const pre=lldpState(tgt.id); r=applyConns(tgt.id,conns); moves.forEach(m=>{const l=S.links.find(x=>x.id===m.link); if(l) l[m.side]=m.to;}); d=addPeripherals(tgt.id,per,ch,autoZone);
+      lldpRecord(tgt.id,pre,chgSummary(chg)||'No changes',S.nodes.filter(n=>!beforeIds.has(n.id)).map(n=>n.id),{kind:'lldp',src:imp.lldpName||'pasted LLDP',changes:chg.list.map(({g,k,t,d})=>({g,k,t,d})),chPorts:chg.chPorts});}); closeImport(); fit(); select('node',tgt.id);
+    toast(`${[connsText(r),moves.length?`${moves.length} moved`:'',d?`${d} device${d>1?'s':''} added`:''].filter(Boolean).join(', ')} for ${tgt.label} from LLDP. Undo removes them.`); return; }
   const s=curSrc(), {rows,newV}=impRows(); if(!rows.length) return;
-  const stub=impStub(), stubLabel=stub&&stub.label, vpnSel=impVpn().filter(t=>!t.linked&&!imp.vpnSkip.has(t.key)); let vr={peers:0,links:0};
+  const chg=impChanges(), stub=impStub(), stubLabel=stub&&stub.label, vpnSel=impVpn().filter(t=>!t.linked&&!imp.vpnSkip.has(t.key)); let vr={peers:0,links:0};
   let n=(imp.nodeId&&node(imp.nodeId))||stub; const isNew=!n, type=impType(), o={...imp.o}, brand=imp.brand, sku=imp.sku, fmt=FORMATS[imp.detected];
   const conns=impConns().filter(c=>!imp.skip.has(c.key)), per=imp.addNew?impPeripherals():[], ch=imp.nd; let cr={added:0,upd:0}, nd=0, haNew=null;
+  const moves=n?impMoves(n):[];
   mutate(()=>{
+    const pre=n?lldpState(n.id):null;
     if(!n){const r=svg.getBoundingClientRect();
       n={id:uid('n'),type,x:snap((r.width/2-view.x)/view.k),y:snap((r.height/2-view.y)/view.k),label:s.hostname||TYPES[type].name,ip:'',model:'',notes:'',brand:'',sku:'',ports:{}}; S.nodes.push(n);}
     n.brand=brand; n.sku=sku; if(n===stub){ n.type=type; delete n.vpnPeer; }
@@ -2636,17 +2747,19 @@ function applyImport(){
     if(o.replace||!n.ports) n.ports={};
     rows.forEach(r=>{n.ports[r.pn]={u:r.c.u,t:[...r.c.t],desc:r.c.desc,off:r.c.off};});
     if(isNew) placeNear(n,conns);
-    const pre=lldpState(n.id);
     cr=applyConns(n.id,conns);
+    moves.forEach(m=>{const l=S.links.find(x=>x.id===m.link); if(l) l[m.side]=m.to;});
     nd=addPeripherals(n.id,per,ch,autoZone);
-    if(imp.lldp&&imp.lldp.trim()) lldpRecord(n.id,pre,[connsText(cr),nd?`${nd} device${nd>1?'s':''} added`:''].filter(Boolean).join(', ')||'No changes',S.nodes.filter(m=>!beforeIds.has(m.id)&&m.id!==n.id).map(m=>m.id));
     if(s.ha&&imp.haPeer&&!clusterOf(n.id)) haNew=addHaPeer(n,{mirror:true,mode:s.ha.mode,name:s.ha.name,hb:s.ha.hb});
     if(vpnSel.length) vr=applyVpn(n,vpnSel);
+    const made=S.nodes.filter(m=>!beforeIds.has(m.id)&&m.id!==n.id).map(m=>m.id);
+    lldpRecord(n.id,pre,isNew?`Added from config · ${rows.length} port${rows.length===1?'':'s'}`:(chg&&chgSummary(chg))||'No changes',made,
+      {kind:'config',src:[imp.srcName||'pasted config',imp.lldp&&imp.lldp.trim()?imp.lldpName||'pasted LLDP':''].filter(Boolean).join(' + '),changes:isNew||!chg?[]:chg.list.map(({g,k,t,d})=>({g,k,t,d})),chPorts:isNew||!chg?[]:chg.chPorts});
   });
   if(nd||vr.peers) fit();
   closeImport(); select('node',n.id);
   const ct=connsText(cr);
-  toast(`Imported ${rows.length} port${rows.length===1?'':'s'}${o.vlans&&newV.length?`, ${newV.length} VLAN${newV.length>1?'s':''}`:''}${ct?', '+ct:''}${nd?`, ${nd} new device${nd>1?'s':''}`:''}${haNew?`, HA peer ${haNew.label}`:''}${vr.links?`, ${vr.links} VPN tunnel${vr.links>1?'s':''}`:''}${vr.peers?` (${vr.peers} remote device${vr.peers>1?'s':''} added)`:''}${stub?`; ${stubLabel} filled in`:''} from the ${fmt.replace(/ config.*$/,'')} config.`);
+  toast(`Imported ${rows.length} port${rows.length===1?'':'s'}${o.vlans&&newV.length?`, ${newV.length} VLAN${newV.length>1?'s':''}`:''}${ct?', '+ct:''}${nd?`, ${nd} new device${nd>1?'s':''}`:''}${haNew?`, HA peer ${haNew.label}`:''}${moves.length?`, ${moves.length} cable${moves.length>1?'s':''} moved`:''}${vr.links?`, ${vr.links} VPN tunnel${vr.links>1?'s':''}`:''}${vr.peers?` (${vr.peers} remote device${vr.peers>1?'s':''} added)`:''}${stub?`; ${stubLabel} filled in`:''} from the ${fmt.replace(/ config.*$/,'')} config.`);
 }
 /* A terminal capture (SSH helper file, PuTTY log, pasted session) holds both the config and the LLDP output: split it */
 function cleanTerm(t){
@@ -2711,8 +2824,8 @@ async function readArchive(f){
     const cfg=files.find(e=>base(e)==='running.cfg')||files.find(e=>base(e)==='system.cfg')||files.find(e=>/^(running-config|startup-config)(\.txt)?$/.test(base(e)));
     const nb=files.find(e=>/^lldp[-_]?show(\.txt)?$/.test(base(e)))||files.find(e=>/lldp/.test(base(e))&&e.data.length<2e6);
     if(!cfg&&!nb){ toast(`No switch config or LLDP table found in ${f.name} (${files.length} files). Choose the config file itself.`); return; }
-    if(cfg){ const t=td.decode(cfg.data); $('#impText').value=t; imp.text=t; }
-    if(nb){ const t=td.decode(nb.data); $('#impLldp').value=t; imp.lldp=t; }
+    if(cfg){ const t=td.decode(cfg.data); $('#impText').value=t; imp.text=t; imp.srcName=f.name+' › '+base(cfg); }
+    if(nb){ const t=td.decode(nb.data); $('#impLldp').value=t; imp.lldp=t; imp.lldpName=f.name+' › '+base(nb); }
     imp.srcKey=null; runParse(); renderImport(); renderLldpInfo();
     toast(`From ${f.name}: ${[cfg&&base(cfg),nb&&base(nb)].filter(Boolean).join(' and ')}.`);
   }catch(err){ toast(err&&err.message?err.message:'Could not unpack that file.'); }
@@ -2723,13 +2836,13 @@ $('#impFmt').addEventListener('change',e=>{if(!imp) return; imp.fmt=e.target.val
 const readFile=async f=>{if(!f) return;
   const head=new Uint8Array(await f.slice(0,512).arrayBuffer());
   if(/\.(tgz|gz|tar|zip)$/i.test(f.name)||isGz(head)||isZip(head)||isTar(head)){ if(f.size>400e6){toast('That archive is larger than 400 MB.'); return;} return readArchive(f); }
-  if(f.size>30e6){toast('That file is larger than 30 MB. Choose the config file itself.'); return;} const r=new FileReader(); r.onload=()=>setImpText(String(r.result)); r.readAsText(f);};
+  if(f.size>30e6){toast('That file is larger than 30 MB. Choose the config file itself.'); return;} const r=new FileReader(); r.onload=()=>{setImpText(String(r.result)); if(imp) imp.srcName=f.name;}; r.readAsText(f);};
 $('#impFile').addEventListener('change',e=>{readFile(e.target.files[0]); e.target.value='';});
 const ig=$('#impGrid');
 ig.addEventListener('dragover',e=>{e.preventDefault(); ig.classList.add('drag');});
 ig.addEventListener('dragleave',e=>{if(!ig.contains(e.relatedTarget)) ig.classList.remove('drag');});
 ig.addEventListener('drop',e=>{e.preventDefault(); ig.classList.remove('drag'); const f=e.dataTransfer.files[0];
-  if(e.target&&e.target.id==='impLldp'&&f){const r=new FileReader(); r.onload=()=>{if(!imp) return; $('#impLldp').value=String(r.result); imp.lldp=$('#impLldp').value; runParse(); renderImport(); renderLldpInfo();}; r.readAsText(f); return;}
+  if(e.target&&e.target.id==='impLldp'&&f){const r=new FileReader(); r.onload=()=>{if(!imp) return; imp.lldpName=f.name; $('#impLldp').value=String(r.result); imp.lldp=$('#impLldp').value; runParse(); renderImport(); renderLldpInfo();}; r.readAsText(f); return;}
   readFile(f);});
 document.querySelectorAll('[data-sample]').forEach(b=>b.addEventListener('click',()=>{if(!imp) return; $('#impFmt').value='auto'; imp.fmt='auto'; setImpText(SAMPLES[b.dataset.sample]);}));
 $('#impApply').addEventListener('click',applyImport);
@@ -3001,7 +3114,7 @@ async function busy(btn,label,fn){const t=btn.textContent; btn.disabled=true; bt
 const dateStr=()=>new Date().toISOString().slice(0,10);
 
 /* ---- Updates: compare this copy with version.json in the GitHub repo ---- */
-const NS_VERSION='1.2.0';
+const NS_VERSION='1.3.0';
 const UPD={repo:'DeslypereBram/netsketch-releases',branch:'main'}; // public: holds only NetSketch.html and version.json; the source stays in the private Netsketch repo
 const upRaw=f=>`https://raw.githubusercontent.com/${UPD.repo}/${UPD.branch}/${f}`;
 const upPage=`https://github.com/${UPD.repo}`;
