@@ -1,8 +1,11 @@
 {
-  "version": "1.3.1",
+  "version": "1.4.0",
   "date": "2026-11-17",
   "file": "NetSketch.html",
   "notes": [
-    "History keeps the last 10 imports per device (was 5)"
+    "Compare: put this diagram next to an open tab or a .netsketch file and see what changed",
+    "Lists new, removed and changed devices (name, IP, model, port settings), cables, VPN tunnels and VLANs",
+    "Show on diagram marks new devices green and changed devices orange",
+    "Copy as text for a ticket or report"
   ]
 }

@@ -407,6 +407,22 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .upver dt{color:var(--muted)} .upver dd{margin:0;font-family:var(--f-mono);font-weight:600}
 .upnotes{margin:0;padding:8px 10px 8px 26px;background:var(--canvas);border:1px solid var(--line);border-radius:6px;font-size:12.5px;line-height:1.5;max-height:200px;overflow:auto}
 .upnew{color:var(--accent)}
+.cmpbar{position:absolute;bottom:44px;left:50%;width:max-content;transform:translateX(-50%);z-index:5;display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:center;max-width:calc(100% - 24px);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 8px 6px 12px;box-shadow:var(--shadow);font-size:12px}
+.cmpbar .k{display:inline-flex;align-items:center;gap:5px;color:var(--muted)}
+.cmpbar .k i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.stage:has(.cmpbar:not([hidden])) .hint{visibility:hidden}
+.cmp-add .ntile{stroke:var(--chg-add);stroke-width:3.5}
+.cmp-chg .ntile{stroke:var(--chg);stroke-width:3.5}
+.cmp-del .ntile{stroke:var(--danger);stroke-width:3.5;stroke-dasharray:5 3}
+.cm-pick{display:grid;gap:6px}
+.cm-opt{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:8px 10px;cursor:pointer;background:var(--panel);text-align:left;color:var(--ink);font-size:13px}
+.cm-opt:hover{border-color:var(--accent)}
+.cm-opt small{display:block;color:var(--muted);font-size:11.5px}
+.cm-sides{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;font-size:12.5px}
+.cm-side{border:1px solid var(--line);border-radius:8px;padding:7px 10px;min-width:0}
+.cm-side b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cm-side span{color:var(--muted);font-size:11.5px}
+.cm-scroll{max-height:min(52vh,480px);overflow:auto;border:1px solid var(--line);border-radius:8px;padding:2px 12px 10px}
 .chg-box{border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:0 0 12px;background:var(--panel)}
 .chg-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .chg-sum{margin:6px 0 4px;font-size:12.5px;font-weight:600}
@@ -529,6 +545,7 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
     <button class="btn" id="redoBtn" title="Redo (Ctrl+Shift+Z)" aria-label="Redo"><svg viewBox="0 0 24 24"><path d="M15 7l5 5-5 5"/><path d="M20 12H10a6 6 0 0 0 0 12h2" transform="translate(0 -6)"/></svg></button>
     <button class="btn" id="newBtn" title="New diagram in a new tab">New</button>
     <button class="btn lbl-sm" id="openBtn" aria-label="Open" title="Open a diagram file (Ctrl+O)"><svg viewBox="0 0 24 24"><path d="M3 7.5V18a1.5 1.5 0 0 0 1.5 1.5h15A1.5 1.5 0 0 0 21 18V9.5A1.5 1.5 0 0 0 19.5 8h-7L10.5 5.5h-6A1.5 1.5 0 0 0 3 7z"/></svg><span>Open</span></button>
+    <button class="btn lbl-sm" id="cmpBtn" aria-label="Compare" title="Compare this diagram with another one"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="7.5" height="16" rx="1.5"/><rect x="13.5" y="4" width="7.5" height="16" rx="1.5"/><path d="M6 9h2M6 12.5h2M16.5 9h2M16.5 12.5h2M16.5 16h2"/></svg><span>Compare</span></button>
     <div class="split"><button class="btn" id="saveBtn" aria-label="Save" title="Save the diagram to a file (Ctrl+S)"><svg viewBox="0 0 24 24"><path d="M5 4h11l3 3v12a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/></svg><span>Save</span></button><button class="btn caret" id="saveMenuBtn" aria-label="More ways to save" aria-haspopup="menu" aria-expanded="false" title="Save as… (choose where)"><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5"/></svg></button>
       <div class="menu" id="saveMenu" role="menu" hidden></div></div>
     <button class="btn" id="sampleBtn">Example</button>
@@ -545,6 +562,7 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
   <section class="stage t-select" id="stage">
     <svg id="svg" aria-label="Network diagram canvas"><g id="viewport"><g id="world"></g><g id="overlay" pointer-events="none"></g></g></svg>
     <div class="hint" id="hint"></div>
+    <div class="cmpbar" id="cmpBar" hidden></div>
     <div class="legend" id="legend"></div>
     <div class="viewctl">
       <div class="vc-row">
@@ -597,6 +615,14 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
   </div>
 </div>
 
+<div class="scrim" id="cmpModal" hidden>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="cmTitle" style="width:min(760px,100%)">
+    <div class="dhead"><h2 id="cmTitle">Compare diagrams</h2><button class="icon-btn" id="cmClose" aria-label="Close">×</button></div>
+    <div class="dbody" id="cmBody" style="gap:10px"></div>
+    <div class="dfoot" id="cmFoot"></div>
+  </div>
+</div>
+<input type="file" id="cmpIn" accept=".netsketch,.json,application/json" hidden>
 <div class="scrim" id="updModal" hidden>
   <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="upTitle" style="width:min(460px,100%)">
     <div class="dhead"><h2 id="upTitle">Updates</h2><button class="icon-btn" id="upClose" aria-label="Close">×</button></div>
@@ -1137,7 +1163,7 @@ function render(){
   }
   for(const n of visNodes()){
     const t=TYPES[n.type], on=sel&&sel.t==='node'&&sel.id===n.id, m=catOf(n);
-    h+=`<g class="cat-${t.cat}" data-node="${n.id}" transform="translate(${n.x} ${n.y})">`+
+    h+=`<g class="cat-${t.cat}${cmpMarks&&cmpMarks[n.id]?' cmp-'+cmpMarks[n.id]:''}" data-node="${n.id}" transform="translate(${n.x} ${n.y})">`+
       (on?`<rect class="selring" x="-32" y="-32" width="64" height="64" rx="14"/>`:'')+
       `<rect class="ntile" x="-26" y="-26" width="52" height="52" rx="11"/><g class="nicon" transform="translate(-15 -15) scale(1.25)">${t.icon}</g>${roleBadge(n)}${n.it1?'<g class="it1b" transform="translate(25 -25)"><title>Managed by IT1</title><circle r="7.5"/><path d="M-3.3 0.1 L-1 2.6 L3.4 -2.5"/></g>':''}`+
       `<text class="nlabel halo" y="44">${esc(n.label)}</text>`+(n.ip?`<text class="nip halo" y="58">${esc(n.ip)}</text>`:'')+
@@ -2705,11 +2731,11 @@ function chgSummary(ch){
   return [dv&&pl(dv,'device setting','device settings'),p&&pl(p,'port','ports'),v&&pl(v,'new VLAN','new VLANs'),ca&&pl(ca,'new cable or device','new cables or devices'),mv&&pl(mv,'device moved','devices moved'),gone&&pl(gone,'device not seen','devices not seen'),vp&&pl(vp,'new tunnel','new tunnels'),vg&&pl(vg,'tunnel gone','tunnels gone'),vi&&pl(vi,'VLAN name differs','VLAN names differ')].filter(Boolean).join(' · ');
 }
 const chgMark={add:'+',del:'−',chg:'→',info:'i'};
-function chgListHTML(list){ return CHG_GROUPS.map(([g,label])=>{const it=list.filter(c=>c.g===g); if(!it.length) return '';
+function chgListHTML(list,groups=CHG_GROUPS){ return groups.map(([g,label])=>{const it=list.filter(c=>c.g===g); if(!it.length) return '';
   return `<p class="chg-g">${label}</p><ul class="chg-list">${it.map(c=>`<li class="chg-${c.k}"><span class="mk" aria-hidden="true">${chgMark[c.k]}</span><span><b>${esc(c.t)}</b> ${esc(c.d)}</span></li>`).join('')}</ul>`;}).join(''); }
-function chgText(list,title,src,when){
+function chgText(list,title,src,when,groups=CHG_GROUPS){
   const L=[title]; if(when) L.push(when); if(src) L.push('Source: '+src); L.push('');
-  CHG_GROUPS.forEach(([g,label])=>{const it=list.filter(c=>c.g===g); if(!it.length) return; L.push(label+':'); it.forEach(c=>L.push(`  ${chgMark[c.k]==='i'?'•':chgMark[c.k]} ${c.t}: ${c.d}`)); L.push('');});
+  groups.forEach(([g,label])=>{const it=list.filter(c=>c.g===g); if(!it.length) return; L.push(label+':'); it.forEach(c=>L.push(`  ${chgMark[c.k]==='i'?'•':chgMark[c.k]} ${c.t}${c.d?': '+c.d:''}`)); L.push('');});
   return L.join('\n').trim()+'\n'; }
 function changesHTML(){
   const ch=impChanges(); if(!ch) return '';
@@ -2909,7 +2935,7 @@ document.addEventListener('keydown',e=>{
   if(mod&&e.key.toLowerCase()==='z'&&!typing){e.preventDefault(); e.shiftKey?doRedo():doUndo(); return;}
   if(mod&&e.key.toLowerCase()==='y'&&!typing){e.preventDefault(); doRedo(); return;}
   if(typing) { if(e.key==='Escape') e.target.blur(); return; }
-  if(!$('#fileModal').hidden||!$('#mxModal').hidden||!$('#impModal').hidden||!$('#printModal').hidden||!$('#updModal').hidden){ if(e.key==='Escape'){closeModal(); closeMatrix(); closeImport(); $('#printModal').hidden=true; $('#updModal').hidden=true;} return; }
+  if(!$('#fileModal').hidden||!$('#mxModal').hidden||!$('#impModal').hidden||!$('#printModal').hidden||!$('#updModal').hidden||!$('#cmpModal').hidden){ if(e.key==='Escape'){closeModal(); closeMatrix(); closeImport(); $('#printModal').hidden=true; $('#updModal').hidden=true; $('#cmpModal').hidden=true;} return; }
   if(e.target.closest&&e.target.closest('.props')&&e.key!=='Escape') return;
   if(mod&&e.key.toLowerCase()==='d'){e.preventDefault(); duplicate(); return;}
   if(mod) return;
@@ -2935,6 +2961,7 @@ title.addEventListener('change',()=>{if(fieldBefore&&fieldBefore!==snapshot()) p
 $('#undoBtn').addEventListener('click',doUndo); $('#redoBtn').addEventListener('click',doRedo);
 function stashDoc(){ if(!cur) return; Object.assign(cur,{S,undo,redo,fileName,fileHandle,dirty,view:{...view},sel}); }
 function activateDoc(d,fitIt){
+  if(cmpMarks){ cmpMarks=null; $('#cmpBar').hidden=true; }
   stashDoc(); cur=d; S=d.S; undo=d.undo; redo=d.redo; fileName=d.fileName; fileHandle=d.fileHandle; dirty=d.dirty;
   sel=d.sel; if(sel&&!selObj()) sel=null; selPort=null; showAllPorts=false; closeArm=null;
   title.value=S.title; updUndo(); updFileState(); render(); renderPanel(); renderTabs(); saveIndex();
@@ -3113,8 +3140,113 @@ async function saveFile(filename,data){
 async function busy(btn,label,fn){const t=btn.textContent; btn.disabled=true; btn.textContent=label; try{await fn();}catch(e){toast(e.message||'Something went wrong while making the file.');} finally{btn.disabled=false; btn.textContent=t;}}
 const dateStr=()=>new Date().toISOString().slice(0,10);
 
+/* ---- Compare two diagrams: devices, ports, cables, VLANs and tunnels ---- */
+const CMP_GROUPS=[['sum','Overview'],['nadd','New devices'],['ndel','Removed devices'],['nchg','Changed devices'],['cab','Cables'],['vpn','VPN tunnels'],['vlan','VLANs']];
+let cmpMarks=null, cmpOther=null;
+function portDiff(a,b){
+  const names=new Set([...Object.keys(a.ports||{}),...Object.keys(b.ports||{})]), out=[];
+  for(const pn of names){ const x=getCfg(a,pn), y=getCfg(b,pn), d=[];
+    if((x.u??null)!==(y.u??null)) d.push(`untagged ${vtx(x.u)} → ${vtx(y.u)}`);
+    const xt=new Set(x.t), yt=new Set(y.t), plus=[...yt].filter(v=>!xt.has(v)).sort((p,q)=>p-q), minus=[...xt].filter(v=>!yt.has(v)).sort((p,q)=>p-q);
+    if(plus.length||minus.length) d.push('tagged '+[...plus.map(v=>'+'+v),...minus.map(v=>'−'+v)].join(' '));
+    if(!!x.off!==!!y.off) d.push(y.off?'disabled':'enabled');
+    if((x.desc||'')!==(y.desc||'')) d.push(`description “${x.desc||''}” → “${y.desc||''}”`);
+    if(d.length) out.push({pn,d:d.join(', ')}); }
+  return out.sort((p,q)=>p.pn.localeCompare(q.pn,undefined,{numeric:true}));
+}
+const modelName=n=>{const c=CAT[n.type]; return n.sku&&c&&c[n.brand]&&c[n.brand].models[n.sku]?c[n.brand].models[n.sku].name:(n.model||'none');};
+function compareDiagrams(A,B){
+  const C=[], add=(g,k,t,d)=>C.push({g,k,t,d}); const map=new Map(), used=new Set();
+  const macOf=n=>{const m=String(n.notes||'').match(/(?:[0-9a-f]{2}[:-]){5}[0-9a-f]{2}/i); return m?macNorm(m[0]):'';};
+  const tries=[(a,b)=>a.id===b.id,(a,b)=>{const m=macOf(a); return m&&m===macOf(b);},(a,b)=>a.ip&&a.ip===b.ip&&a.type===b.type,(a,b)=>a.label.toLowerCase()===b.label.toLowerCase()&&a.type===b.type,(a,b)=>a.label.toLowerCase()===b.label.toLowerCase()];
+  for(const t of tries) for(const a of A.nodes){ if(map.has(a.id)) continue; const b=B.nodes.find(b=>!used.has(b.id)&&t(a,b)); if(b){map.set(a.id,b.id); used.add(b.id);} }
+  const bById=new Map(B.nodes.map(n=>[n.id,n])), aById=new Map(A.nodes.map(n=>[n.id,n])), back=new Map([...map].map(([a,b])=>[b,a]));
+  const nm=n=>`${n.label} (${(TYPES[n.type]||{name:'device'}).name.toLowerCase()})`;
+  const marks={A:{},B:{}};
+  B.nodes.filter(n=>!back.has(n.id)).forEach(n=>{add('nadd','add',nm(n),n.ip?n.ip:''); marks.B[n.id]='add';});
+  A.nodes.filter(n=>!map.has(n.id)).forEach(n=>{add('ndel','del',nm(n),n.ip?n.ip:''); marks.A[n.id]='del';});
+  for(const [ai,bi] of map){ const a=aById.get(ai), b=bById.get(bi), L=[];
+    if(a.label!==b.label) L.push(['Name',`${a.label} → ${b.label}`]);
+    if((a.ip||'')!==(b.ip||'')) L.push(['IP address',`${a.ip||'none'} → ${b.ip||'none'}`]);
+    if(a.type!==b.type) L.push(['Type',`${TYPES[a.type].name} → ${TYPES[b.type].name}`]);
+    if(a.brand!==b.brand||a.sku!==b.sku||(a.model||'')!==(b.model||'')) L.push(['Model',`${modelName(a)} → ${modelName(b)}`]);
+    if(!!a.it1!==!!b.it1) L.push(['Managed by IT1',b.it1?'yes':'no']);
+    if((a.notes||'')!==(b.notes||'')) L.push(['Notes','changed']);
+    portDiff(a,b).forEach(p=>L.push([p.pn,p.d]));
+    if(L.length){ L.forEach(([t,d])=>add('nchg','chg',`${b.label} · ${t}`,d)); marks.A[ai]='chg'; marks.B[bi]='chg'; } }
+  const ends=(l,D,toB)=>{const x=toB?(map.get(l.a)||null):l.a, y=toB?(map.get(l.b)||null):l.b; return x&&y?{x,y}:null;};
+  const lkey=(x,y,kind)=>[x,y].sort().join('|')+'|'+(kind==='vpn'?'vpn':'cab');
+  const portsOn=(l,x)=>l.a===x?[l.pa,l.pb]:[l.pb,l.pa];
+  const BL=new Map(); B.links.forEach(l=>{const k=lkey(l.a,l.b,l.kind); if(!BL.has(k)) BL.set(k,[]); BL.get(k).push(l);});
+  const seenB=new Set(), lbl=id=>(bById.get(id)||aById.get(id)||{label:'?'}).label;
+  for(const l of A.links){ const e=ends(l,A,true), g=l.kind==='vpn'?'vpn':'cab';
+    const an=aById.get(l.a), bn=aById.get(l.b); if(!an||!bn) continue;
+    const pair=`${an.label} ↔ ${bn.label}`;
+    if(!e){ add(g,'del',pair,l.kind==='vpn'?(l.label||'tunnel'):`${l.pa||'?'} ↔ ${l.pb||'?'}`); continue; }
+    const cand=(BL.get(lkey(e.x,e.y,l.kind))||[]).filter(m=>!seenB.has(m.id)); if(!cand.length){ add(g,'del',pair,l.kind==='vpn'?(l.label||'tunnel'):`${l.pa||'?'} ↔ ${l.pb||'?'}`); marks.A[l.a]=marks.A[l.a]||'chg'; continue; }
+    const [pa0,pb0]=portsOn(l,l.a), m=cand.find(m=>{const [x,y]=portsOn(m,e.x); return x===pa0&&y===pb0;})||cand[0]; seenB.add(m.id);
+    const [pa1,pb1]=portsOn(m,e.x), d=[];
+    if((pa0||'')!==(pa1||'')) d.push(`${an.label}: ${pa0||'no port'} → ${pa1||'no port'}`);
+    if((pb0||'')!==(pb1||'')) d.push(`${bn.label}: ${pb0||'no port'} → ${pb1||'no port'}`);
+    if(l.kind!==m.kind) d.push(`${LINKS[l.kind].name} → ${LINKS[m.kind].name}`);
+    if((l.label||'')!==(m.label||'')&&l.kind==='vpn') d.push(`“${l.label}” → “${m.label}”`);
+    if(d.length) add(g,'chg',`${lbl(e.x)} ↔ ${lbl(e.y)}`,d.join(', ')); }
+  for(const m of B.links) if(!seenB.has(m.id)){ const x=bById.get(m.a), y=bById.get(m.b); if(!x||!y) continue;
+    add(m.kind==='vpn'?'vpn':'cab','add',`${x.label} ↔ ${y.label}`,m.kind==='vpn'?(m.label||'tunnel'):`${m.pa||'?'} ↔ ${m.pb||'?'}`); }
+  const av=new Map(A.vlans.map(v=>[v.id,v.name])), bv=new Map(B.vlans.map(v=>[v.id,v.name]));
+  for(const [id,n] of bv) if(!av.has(id)) add('vlan','add','VLAN '+id,n); else if(av.get(id)!==n) add('vlan','chg','VLAN '+id,`“${av.get(id)}” → “${n}”`);
+  for(const [id,n] of av) if(!bv.has(id)) add('vlan','del','VLAN '+id,n);
+  return {list:C,marks};
+}
+function cmpSummary(list){ const n=(g,k)=>list.filter(c=>c.g===g&&(!k||c.k===k)).length, chgDev=new Set(list.filter(c=>c.g==='nchg').map(c=>c.t.split(' · ')[0])).size, pl=(x,a,b)=>x?`${x} ${x===1?a:b}`:'';
+  return [pl(n('nadd'),'new device','new devices'),pl(n('ndel'),'device removed','devices removed'),pl(chgDev,'device changed','devices changed'),pl(n('cab','add'),'new cable','new cables'),pl(n('cab','del'),'cable removed','cables removed'),pl(n('cab','chg'),'cable changed','cables changed'),pl(n('vpn','add'),'new tunnel','new tunnels'),pl(n('vpn','del'),'tunnel removed','tunnels removed'),pl(n('vlan'),'VLAN change','VLAN changes')].filter(Boolean).join(' · '); }
+const docInfo=d=>({title:(d===cur?S:d.S).title||'Untitled network',file:d===cur?fileName:d.fileName,data:d===cur?S:d.S});
+function openCompare(){
+  stashDoc(); cmpOther=null;
+  const others=docs.filter(d=>d!==cur);
+  $('#cmBody').innerHTML=`<p style="margin:0;font-size:13px">Compare <b>${esc(S.title)}</b> with an earlier version. NetSketch lists what is new, removed or changed: devices, port settings, cables, VPN tunnels and VLANs.</p>
+    <div class="cm-pick">${others.map(d=>{const i=docInfo(d); return `<button type="button" class="cm-opt" data-cmp-doc="${d.id}"><span><b>${esc(i.title)}</b><small>Open tab${i.file?' · '+esc(i.file):''} · ${i.data.nodes.length} devices</small></span></button>`;}).join('')}
+      <button type="button" class="cm-opt" id="cmFile"><span><b>Choose a .netsketch file…</b><small>For example last month’s version of this site</small></span></button></div>`;
+  $('#cmFoot').innerHTML=`<button class="btn" data-cm="close">Cancel</button>`;
+  $('#cmpModal').hidden=false;
+}
+function showCompare(other,otherName,swap){
+  cmpOther={data:other,name:otherName,swap:!!swap};
+  const me={data:S,name:S.title+(fileName?' · '+fileName:'')}, them={data:other,name:otherName};
+  const [A,B]=swap?[me,them]:[them,me]; const r=compareDiagrams(A.data,B.data);
+  cmpOther.result=r; cmpOther.A=A; cmpOther.B=B;
+  const sum=cmpSummary(r.list);
+  $('#cmBody').innerHTML=`<div class="cm-sides"><div class="cm-side"><span>Before</span><b title="${esc(A.name)}">${esc(A.name)}</b></div><button type="button" class="btn sm" data-cm="swap" title="Swap before and after">⇄</button><div class="cm-side"><span>After</span><b title="${esc(B.name)}">${esc(B.name)}</b></div></div>
+    ${r.list.length?`<p class="chg-sum" style="margin:2px 0 0">${esc(sum)}</p><div class="cm-scroll">${chgListHTML(r.list,CMP_GROUPS)}</div>`:'<p style="margin:0;font-size:13px">No differences: both diagrams have the same devices, port settings, cables and VLANs.</p>'}`;
+  $('#cmFoot').innerHTML=`<button class="btn" data-cm="back">Compare with another</button>${r.list.length?'<button class="btn" data-cm="copy">Copy as text</button><button class="btn primary" data-cm="show">Show on diagram</button>':'<button class="btn primary" data-cm="close">Close</button>'}`;
+}
+function showCmpMarks(){
+  if(!cmpOther) return; const r=cmpOther.result, mineIsB=!cmpOther.swap;
+  cmpMarks=mineIsB?r.marks.B:r.marks.A; render();
+  const n=k=>Object.values(cmpMarks).filter(v=>v===k).length;
+  $('#cmpBar').innerHTML=`<span>Compared with <b>${esc(cmpOther.name)}</b></span>${n('add')?`<span class="k"><i style="box-shadow:inset 0 0 0 3px var(--chg-add)"></i>${n('add')} new</span>`:''}${n('chg')?`<span class="k"><i style="box-shadow:inset 0 0 0 3px var(--chg)"></i>${n('chg')} changed</span>`:''}${!mineIsB&&n('del')?`<span class="k"><i style="box-shadow:inset 0 0 0 3px var(--danger)"></i>${n('del')} gone later</span>`:''}${mineIsB&&r.marks&&Object.values(r.marks.A).includes('del')?`<span class="k">${Object.values(r.marks.A).filter(v=>v==='del').length} removed (listed in Compare)</span>`:''}<button class="btn sm" id="cmpReopen">List</button><button class="btn sm" id="cmpClear">Clear</button>`;
+  $('#cmpBar').hidden=false; $('#cmpModal').hidden=true;
+  $('#cmpClear').addEventListener('click',clearCmpMarks);
+  $('#cmpReopen').addEventListener('click',()=>{ $('#cmpModal').hidden=false; showCompare(cmpOther.data,cmpOther.name,cmpOther.swap); });
+}
+function clearCmpMarks(){ cmpMarks=null; $('#cmpBar').hidden=true; render(); }
+$('#cmpBtn').addEventListener('click',openCompare);
+$('#cmClose').addEventListener('click',()=>{$('#cmpModal').hidden=true;});
+$('#cmpIn').addEventListener('change',e=>{ const f=e.target.files&&e.target.files[0]; e.target.value=''; if(!f) return;
+  const r=new FileReader(); r.onload=()=>{ let d; try{ d=unpack(String(r.result)); }catch(err){ toast(`${f.name} is not a NetSketch diagram.`); return; } $('#cmpModal').hidden=false; showCompare(d,`${d.title} · ${f.name}`,false); }; r.readAsText(f); });
+$('#cmpModal').addEventListener('click',e=>{ if(e.target.id==='cmpModal'){$('#cmpModal').hidden=true; return;}
+  if(e.target.closest('#cmFile')){ $('#cmpIn').click(); return; }
+  const o=e.target.closest('[data-cmp-doc]'); if(o){ const d=docs.find(x=>x.id===o.dataset.cmpDoc); if(d){ const i=docInfo(d); showCompare(JSON.parse(JSON.stringify(i.data)),i.title+(i.file?' · '+i.file:''),false);} return; }
+  const b=e.target.closest('[data-cm]'); if(!b) return; const a=b.dataset.cm;
+  if(a==='close') $('#cmpModal').hidden=true;
+  else if(a==='back') openCompare();
+  else if(a==='swap') showCompare(cmpOther.data,cmpOther.name,!cmpOther.swap);
+  else if(a==='show') showCmpMarks();
+  else if(a==='copy') copyPlain(chgText(cmpOther.result.list,`NetSketch: comparison`,'',`Before: ${cmpOther.A.name}\nAfter: ${cmpOther.B.name}\n${cmpSummary(cmpOther.result.list)}`,CMP_GROUPS),'Comparison copied.');
+});
+
 /* ---- Updates: compare this copy with version.json in the GitHub repo ---- */
-const NS_VERSION='1.3.1';
+const NS_VERSION='1.4.0';
 const UPD={repo:'DeslypereBram/netsketch-releases',branch:'main'}; // public: holds only NetSketch.html and version.json; the source stays in the private Netsketch repo
 const upRaw=f=>`https://raw.githubusercontent.com/${UPD.repo}/${UPD.branch}/${f}`;
 const upPage=`https://github.com/${UPD.repo}`;
