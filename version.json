@@ -1,8 +1,8 @@
 {
-  "version": "1.4.1",
+  "version": "1.4.2",
   "date": "2026-11-17",
   "file": "NetSketch.html",
   "notes": [
-    "Where do I get the config: the LLDP / CDP commands are now listed per brand, each with a Copy button"
+    "Where do I get the config: the switch and firewall commands are now listed per brand too, each with a Copy button"
   ]
 }
