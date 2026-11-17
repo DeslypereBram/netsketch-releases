@@ -1,8 +1,10 @@
 {
-  "version": "1.4.2",
+  "version": "1.4.3",
   "date": "2026-11-17",
   "file": "NetSketch.html",
   "notes": [
-    "Where do I get the config: the switch and firewall commands are now listed per brand too, each with a Copy button"
+    "FortiGate LLDP: the output of diagnose lldprx neighbor summary (and details) is now read, so cables and devices on the firewall's ports are added",
+    "ISP modems (Telenet, Proximus, EDPnet and others) are recognised by name in LLDP output",
+    "Where do I get the config: FortiGate LLDP command added"
   ]
 }
