@@ -1346,7 +1346,7 @@ function portTable(o,ports){
 }
 
 /* ---- LLDP history: the last LLDP_KEEP LLDP imports per device, each restorable ---- */
-const LLDP_KEEP=5;
+const LLDP_KEEP=10;
 function lldpState(id){
   const links=S.links.filter(l=>l.a===id||l.b===id).map(l=>({a:l.a,b:l.b,kind:l.kind,label:l.label,pa:l.pa,pb:l.pb}));
   const seen=new Set(), nodes=links.map(l=>node(l.a===id?l.b:l.a)).filter(n=>n&&!seen.has(n.id)&&seen.add(n.id)).map(n=>JSON.parse(JSON.stringify(n)));
@@ -3114,7 +3114,7 @@ async function busy(btn,label,fn){const t=btn.textContent; btn.disabled=true; bt
 const dateStr=()=>new Date().toISOString().slice(0,10);
 
 /* ---- Updates: compare this copy with version.json in the GitHub repo ---- */
-const NS_VERSION='1.3.0';
+const NS_VERSION='1.3.1';
 const UPD={repo:'DeslypereBram/netsketch-releases',branch:'main'}; // public: holds only NetSketch.html and version.json; the source stays in the private Netsketch repo
 const upRaw=f=>`https://raw.githubusercontent.com/${UPD.repo}/${UPD.branch}/${f}`;
 const upPage=`https://github.com/${UPD.repo}`;
