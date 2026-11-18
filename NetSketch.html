@@ -1227,7 +1227,9 @@ svg.addEventListener('pointerdown',e=>{
   if(zoneEl&&tool==='select'){
     const z=S.zones.find(z=>z.id===zoneEl.dataset.zone); select('zone',z.id);
     const members=S.nodes.filter(n=>n.x>=z.x&&n.x<=z.x+z.w&&n.y>=z.y&&n.y<=z.y+z.h).map(n=>({n,x:n.x,y:n.y}));
-    drag={kind:'zone',z,sx:p.x,sy:p.y,zx:z.x,zy:z.y,members,before}; return;
+    /* zones that sit completely inside this one move along, with everything in them */
+    const inner=S.zones.filter(q=>q!==z&&q.x>=z.x&&q.y>=z.y&&q.x+q.w<=z.x+z.w&&q.y+q.h<=z.y+z.h).map(q=>({q,x:q.x,y:q.y}));
+    drag={kind:'zone',z,sx:p.x,sy:p.y,zx:z.x,zy:z.y,members,inner,before}; return;
   }
   if(sel) select(null);
   pan();
@@ -1238,7 +1240,7 @@ svg.addEventListener('pointermove',e=>{
   switch(drag.kind){
     case 'pan': view.x=drag.vx+e.clientX-drag.sx; view.y=drag.vy+e.clientY-drag.sy; applyView(); break;
     case 'node': drag.n.x=snap(p.x-drag.ox); drag.n.y=snap(p.y-drag.oy); render(); break;
-    case 'zone': {const dx=snap(p.x-drag.sx), dy=snap(p.y-drag.sy); drag.z.x=drag.zx+dx; drag.z.y=drag.zy+dy; drag.members.forEach(m=>{m.n.x=m.x+dx; m.n.y=m.y+dy}); render(); break;}
+    case 'zone': {const dx=snap(p.x-drag.sx), dy=snap(p.y-drag.sy); drag.z.x=drag.zx+dx; drag.z.y=drag.zy+dy; drag.members.forEach(m=>{m.n.x=m.x+dx; m.n.y=m.y+dy}); (drag.inner||[]).forEach(m=>{m.q.x=m.x+dx; m.q.y=m.y+dy}); render(); break;}
     case 'resize': drag.z.w=Math.max(100,snap(p.x-drag.z.x)); drag.z.h=Math.max(70,snap(p.y-drag.z.y)); render(); break;
     case 'link': {drag.x=p.x; drag.y=p.y; const el=document.elementFromPoint(e.clientX,e.clientY); const tg=el&&el.closest('[data-node]'); drag.target=tg&&tg.dataset.node!==drag.from?tg.dataset.node:null; drawOverlay(); break;}
     case 'zonedraw': drag.x1=p.x; drag.y1=p.y; drawOverlay(); break;
@@ -3276,7 +3278,7 @@ $('#cmpModal').addEventListener('click',e=>{ if(e.target.id==='cmpModal'){$('#cm
 });
 
 /* ---- Updates: compare this copy with version.json in the GitHub repo ---- */
-const NS_VERSION='1.4.3';
+const NS_VERSION='1.4.4';
 const UPD={repo:'DeslypereBram/netsketch-releases',branch:'main'}; // public: holds only NetSketch.html and version.json; the source stays in the private Netsketch repo
 const upRaw=f=>`https://raw.githubusercontent.com/${UPD.repo}/${UPD.branch}/${f}`;
 const upPage=`https://github.com/${UPD.repo}`;

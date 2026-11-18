@@ -1,10 +1,8 @@
 {
-  "version": "1.4.3",
-  "date": "2026-11-17",
+  "version": "1.4.4",
+  "date": "2026-11-18",
   "file": "NetSketch.html",
   "notes": [
-    "FortiGate LLDP: the output of diagnose lldprx neighbor summary (and details) is now read, so cables and devices on the firewall's ports are added",
-    "ISP modems (Telenet, Proximus, EDPnet and others) are recognised by name in LLDP output",
-    "Where do I get the config: FortiGate LLDP command added"
+    "Moving a zone now also moves the zones that sit completely inside it"
   ]
 }
