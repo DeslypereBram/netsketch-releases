@@ -95,7 +95,14 @@ kbd{font-family:var(--f-mono);font-size:10px;opacity:.6}
 .btn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 
 /* Workbench */
-.app{display:grid;grid-template-columns:200px minmax(0,1fr) 318px;gap:10px;min-height:0}
+.app{--lw:200px;--rw:318px;display:grid;grid-template-columns:var(--lw) minmax(0,1fr) var(--rw);gap:10px;min-height:0}
+.app.no-left{grid-template-columns:minmax(0,1fr) var(--rw)}
+.app.no-right{grid-template-columns:var(--lw) minmax(0,1fr)}
+.app.no-left.no-right{grid-template-columns:minmax(0,1fr)}
+.app.no-left .palette,.app.no-right .props{display:none!important}
+.zoom .zsep{width:1px;align-self:stretch;background:var(--line);margin:4px 2px}
+.zoom button svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round;display:block;margin:auto}
+.zoom button[aria-pressed="false"]{color:var(--muted)}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:auto;min-height:0}
 .palette{padding:12px 10px;display:flex;flex-direction:column;gap:14px}
 .cap{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:0 0 6px 2px}
@@ -522,9 +529,10 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .ghost{position:fixed;z-index:50;pointer-events:none;width:46px;height:46px;border-radius:10px;display:grid;place-items:center;background:var(--ct);color:var(--cc);
   border:1.5px solid var(--cc);transform:translate(-50%,-50%);box-shadow:var(--shadow)}
 
-@media (max-width:980px){ .app{grid-template-columns:170px minmax(0,1fr) 300px} }
+@media (max-width:980px){ .app{--lw:170px;--rw:300px} }
 @media (max-width:860px){
-  .app{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto}
+  .app,.app.no-left,.app.no-right{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto}
+  .app.no-left{grid-template-rows:minmax(0,1fr) auto}
   .palette{flex-direction:row;overflow-x:auto;overflow-y:hidden;padding:8px;gap:12px}
   .palette .group{flex:none}
   .pgrid{display:flex;gap:6px}
@@ -590,6 +598,10 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
       <output id="zoomPct">100%</output>
       <button id="zoomIn" aria-label="Zoom in">+</button>
       <button id="fitBtn" aria-label="Fit diagram to screen" title="Fit (F)">⤢</button>
+      <span class="zsep" aria-hidden="true"></span>
+      <button id="leftTgl" aria-pressed="true" aria-label="Device library panel" title="Show or hide the device library ([)"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="M9 4.5v15"/><path d="M4 6h4.5v12H4z" fill="currentColor" stroke="none" opacity=".35"/></svg></button>
+      <button id="rightTgl" aria-pressed="true" aria-label="Details panel" title="Show or hide the details panel (])"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="M15 4.5v15"/><path d="M15.5 6H20v12h-4.5z" fill="currentColor" stroke="none" opacity=".35"/></svg></button>
+      <button id="focusTgl" aria-pressed="false" aria-label="Diagram only" title="Diagram only: hide both panels (\)"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
     </div>
   </section>
   <aside class="panel props" id="props" aria-label="Properties"></aside>
@@ -1192,6 +1204,16 @@ function bounds(){
   for(const z of visZones()){x0=Math.min(x0,z.x);y0=Math.min(y0,z.y);x1=Math.max(x1,z.x+z.w);y1=Math.max(y1,z.y+z.h);}
   if(!isFinite(x0)) return {x:0,y:0,w:800,h:500};
   return {x:x0,y:y0,w:x1-x0,h:y1-y0};
+}
+/* Panels: hide the device library and/or the details panel to see only the diagram */
+const panels=(()=>{try{const v=JSON.parse(localStorage.getItem('netsketch.panels')||'{}'); return {left:v.left!==false,right:v.right!==false};}catch(e){return {left:true,right:true};}})();
+function setPanels(l,r,quiet){
+  panels.left=!!l; panels.right=!!r; const app=$('#app');
+  app.classList.toggle('no-left',!panels.left); app.classList.toggle('no-right',!panels.right);
+  $('#leftTgl').setAttribute('aria-pressed',String(panels.left)); $('#rightTgl').setAttribute('aria-pressed',String(panels.right));
+  $('#focusTgl').setAttribute('aria-pressed',String(!panels.left&&!panels.right));
+  try{localStorage.setItem('netsketch.panels',JSON.stringify(panels));}catch(e){}
+  if(!quiet) requestAnimationFrame(()=>render());
 }
 function fit(){
   const r=svg.getBoundingClientRect(); if(!r.width) return;
@@ -2974,6 +2996,9 @@ document.addEventListener('keydown',e=>{
   const k=e.key.toLowerCase();
   if(k==='v') setTool('select'); else if(k==='c') setTool('connect'); else if(k==='z') setTool('zone');
   else if(k==='f') fit();
+  else if(e.key==='['){ setPanels(!panels.left,panels.right); }
+  else if(e.key===']'){ setPanels(panels.left,!panels.right); }
+  else if(e.key==='\\'){ const any=panels.left||panels.right; setPanels(!any,!any); }
   else if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault(); deleteSel();}
   else if(e.key==='Escape'){setTool('select'); select(null);}
   else if(e.key===' '){e.preventDefault(); spaceDown=true; stage.classList.add('panning');}
@@ -3031,6 +3056,10 @@ function renderTabs(){
 $('#newBtn').addEventListener('click',()=>{openInTab(blankDiagram()); toast('New diagram opened in a new tab.');});
 $('#sampleBtn').addEventListener('click',()=>{openInTab(sample()); toast('Example opened in a new tab.');});
 $('#zoomIn').addEventListener('click',()=>zoomCenter(1.2)); $('#zoomOut').addEventListener('click',()=>zoomCenter(1/1.2)); $('#fitBtn').addEventListener('click',fit);
+$('#leftTgl').addEventListener('click',()=>setPanels(!panels.left,panels.right));
+$('#rightTgl').addEventListener('click',()=>setPanels(panels.left,!panels.right));
+$('#focusTgl').addEventListener('click',()=>{ const any=panels.left||panels.right; setPanels(!any,!any); });
+setPanels(panels.left,panels.right,true);
 
 /* ---- Export / import ---- */
 const STYLE_PROPS=['fill','fill-opacity','stroke','stroke-width','stroke-dasharray','stroke-linecap','stroke-linejoin','stroke-opacity','opacity','font-family','font-size','font-weight','text-anchor','dominant-baseline','paint-order'];
@@ -3278,7 +3307,7 @@ $('#cmpModal').addEventListener('click',e=>{ if(e.target.id==='cmpModal'){$('#cm
 });
 
 /* ---- Updates: compare this copy with version.json in the GitHub repo ---- */
-const NS_VERSION='1.4.4';
+const NS_VERSION='1.5.0';
 const UPD={repo:'DeslypereBram/netsketch-releases',branch:'main'}; // public: holds only NetSketch.html and version.json; the source stays in the private Netsketch repo
 const upRaw=f=>`https://raw.githubusercontent.com/${UPD.repo}/${UPD.branch}/${f}`;
 const upPage=`https://github.com/${UPD.repo}`;

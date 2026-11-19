@@ -1,8 +1,10 @@
 {
-  "version": "1.4.4",
-  "date": "2026-11-18",
+  "version": "1.5.0",
+  "date": "2026-11-19",
   "file": "NetSketch.html",
   "notes": [
-    "Moving a zone now also moves the zones that sit completely inside it"
+    "Hide the device library and the details panel to see only the diagram: buttons next to the zoom controls",
+    "Keys: [ for the library, ] for the details panel, \\ for both",
+    "NetSketch remembers which panels you hid"
   ]
 }
