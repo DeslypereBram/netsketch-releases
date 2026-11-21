@@ -1,10 +1,10 @@
 {
-  "version": "1.5.0",
-  "date": "2026-11-19",
+  "version": "1.6.0",
+  "date": "2026-11-21",
   "file": "NetSketch.html",
   "notes": [
-    "Hide the device library and the details panel to see only the diagram: buttons next to the zoom controls",
-    "Keys: [ for the library, ] for the details panel, \\ for both",
-    "NetSketch remembers which panels you hid"
+    "Language selector in the top bar: English, Nederlands, Français",
+    "NetSketch starts in the language of your browser and remembers your choice",
+    "Device names, ports, VLAN names and commands stay as they are; PDF and Visio exports are still in English"
   ]
 }
