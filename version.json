@@ -1,9 +1,9 @@
 {
-  "version": "1.6.2",
+  "version": "1.6.3",
   "date": "2026-11-24",
   "file": "NetSketch.html",
   "notes": [
-    "Where do I get the config: how to add a UniFi gateway and get its LLDP neighbours",
-    "LLDP: output of lldpcli show neighbors (UniFi gateways, Linux) is now read"
+    "Fix: a port description naming a phone, DECT base or access point (like W80B) no longer cables every switch to the same device",
+    "Access points named like 7AP22 are now recognised as access points"
   ]
 }

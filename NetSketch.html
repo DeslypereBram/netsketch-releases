@@ -2164,7 +2164,7 @@ const DEVICE_HINTS=[
   [/\bmodem\b|telenet|proximus|edpnet|\bb-?box\b|fritz!?box|connect ?box|\bcbn\b|technicolor|sagemcom|\bcpe\b/,'modem'],
   [/fortigate|\bfgt\d|firewall|pfsense|opnsense|sophos|palo ?alto|watchguard|\basa ?\d|firepower|check ?point|\budm\b|dream machine|dream router|cloud gateway|\bucg\b|\buxg\b|\budr7?\b|\busg\b|security gateway|unifi gateway|gateway (lite|max|pro|fiber)|(^|[-_\s])gw(\d*|[-_]|$)/,'firewall'],
   [/ip ?phone|telephone|\bsep[0-9a-f]{12}\b|yealink|polycom|snom|grandstream|avaya|mitel|\bcp-\d{4}|gigaset|\bphone\b|\bsip[-_]?t\d|(^|[^a-z0-9])t(19|2\d|3\d|4\d|5\d|7\d)[a-z]?([-_ ]?e\d)?($|[^a-z0-9])|\bw[5-9]\d[bp]\b|\bcp9\d\d\b|\bvvx\s?\d|\bccx\s?\d/,'phone'],
-  [/access ?point|\buap\b|uap-|\bu[67][-\s]|air-c?ap|\bcw91|fortiap|\bfap-|meraki mr|\bwap\d|\beap\d|\bap\d{2,}\b|\bap[-_]\d|^ap\b|instant on ap|\biap-/,'ap'],
+  [/access ?point|\buap\b|uap-|\bu[67][-\s]|air-c?ap|\bcw91|fortiap|\bfap-|meraki mr|\bwap\d|\beap\d|(^|[^a-z])ap[-_]?\d|^ap\b|instant on ap|\biap-/,'ap'],
   [/printer|\bprint|\bprn|laserjet|officejet|pagewide|\bhp ?lj|\blj\d|\bmfp\b|brother|kyocera|ricoh|xerox|imagerunner|konica|lexmark|epson|zebra/,'printer'],
   [/camera|\bipcam|\bcam[-_]?\d|\baxis\b|hikvision|dahua|\buvc\b|unifi protect|hanwha|mobotix|vivotek/,'camera'],
   [/synology|diskstation|rackstation|qnap|\bnas\b|\bunas\b|truenas|netapp/,'storage'],
@@ -2305,7 +2305,11 @@ function computeConns(o){
   for(const nb of o.neighbors||[]){const n=nb.via==='FortiLink'?nodeByName(nb.name,o.targetId):neighborNode(nb,o.targetId,dup); if(!n) continue; let r='';
     if(nb.remote){const ps=portsOf(n); if(ps){const m=mapPort(nb.remote,ps); r=m?m.p.n:'';} else if(nb.remote.length<=20&&!/\s/.test(nb.remote)) r=nb.remote;}
     add(n,{local:nb.local,remote:r,via:nb.via});}
+  /* a port description that names an endpoint or access point only counts if that device has no cable to another device yet:
+     many phones, DECT bases and APs share a name (W80B, 7AP22), and one of them can't hang off several switches */
+  const single=n=>ENDPOINTS.has(n.type)||n.type==='ap';
   for(const [vn,c] of Object.entries(o.ports||{})){ if(!c||!c.desc) continue; const hit=nodeInText(c.desc,o.targetId); if(!hit) continue;
+    if(single(hit.n)&&S.links.some(l=>(l.a===hit.n.id&&l.b!==o.targetId)||(l.b===hit.n.id&&l.a!==o.targetId))) continue;
     add(hit.n,{local:vn,remote:portInText(c.desc.slice(hit.end),hit.n),via:'port description'});}
   const names=(o.names||[]).filter(Boolean);
   for(const n of S.nodes){ if(n.id===o.targetId) continue;
@@ -3538,7 +3542,7 @@ const LX=(()=>{
 LX.start();
 
 /* ---- Updates: compare this copy with version.json in the GitHub repo ---- */
-const NS_VERSION='1.6.2';
+const NS_VERSION='1.6.3';
 const UPD={repo:'DeslypereBram/netsketch-releases',branch:'main'}; // public: holds only NetSketch.html and version.json; the source stays in the private Netsketch repo
 const upRaw=f=>`https://raw.githubusercontent.com/${UPD.repo}/${UPD.branch}/${f}`;
 const upPage=`https://github.com/${UPD.repo}`;
