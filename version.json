@@ -1,9 +1,9 @@
 {
-  "version": "1.6.1",
+  "version": "1.6.2",
   "date": "2026-11-24",
   "file": "NetSketch.html",
   "notes": [
-    "More UniFi gateways: Cloud Gateway Fiber, Dream Machine, Dream Machine Pro Max, Dream Router, Dream Router 7, Dream Router 5G Max, UniFi Express, Express 7, Gateway Lite, Gateway Max, Gateway Fiber, USG and USG-Pro-4",
-    "UniFi gateways are recognised by name in LLDP output"
+    "Where do I get the config: how to add a UniFi gateway and get its LLDP neighbours",
+    "LLDP: output of lldpcli show neighbors (UniFi gateways, Linux) is now read"
   ]
 }
