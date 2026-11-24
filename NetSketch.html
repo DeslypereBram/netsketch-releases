@@ -886,11 +886,25 @@ const FW={
     'fg-200f':{name:'FortiGate 200F',ports:()=>[...named(['mgmt','ha']),...seq(1,16,Nf,'rj45'),...seq(17,24,Nf,'sfp'),...named(['x1','x2','x3','x4'],'sfp+')]},
   }},
   unifi:{name:'UniFi',models:{
+    /* port layouts after techspecs.ui.com; the default WAN port is marked, others can be made WAN in UniFi Network */
     'ucg-ultra':{name:'Cloud Gateway Ultra',ports:()=>[...seq(1,4,Nu,'rj45'),{n:'Port 5',k:'rj45-2.5',wan:1,s:'W5'}]},
     'ucg-max':{name:'Cloud Gateway Max',ports:()=>[...seq(1,4,Nu,'rj45-2.5'),{n:'Port 5',k:'rj45-2.5',wan:1,s:'W5'}]},
+    'ucg-fiber':{name:'Cloud Gateway Fiber',ports:()=>[...seq(1,4,Nu,'rj45-2.5',1),{n:'Port 5',k:'rj45-10',wan:1,s:'W5'},{n:'Port 6',k:'sfp+',s:'S6'},{n:'Port 7',k:'sfp+',s:'S7'}]},
+    'udm':{name:'Dream Machine',ports:()=>[...seq(1,4,Nu,'rj45'),{n:'Port 5',k:'rj45',wan:1,s:'W5'}]},
     'udm-pro':{name:'Dream Machine Pro',ports:()=>[...seq(1,8,Nu,'rj45'),{n:'Port 9',k:'rj45',wan:1,s:'W9'},{n:'Port 10',k:'sfp+',wan:1,s:'W10'},{n:'Port 11',k:'sfp+'}]},
     'udm-se':{name:'Dream Machine SE',ports:()=>[...seq(1,8,Nu,'rj45',8),{n:'Port 9',k:'rj45-2.5',wan:1,s:'W9'},{n:'Port 10',k:'sfp+',wan:1,s:'W10'},{n:'Port 11',k:'sfp+'}]},
+    'udm-pro-max':{name:'Dream Machine Pro Max',ports:()=>[...seq(1,8,Nu,'rj45'),{n:'Port 9',k:'rj45-2.5',wan:1,s:'W9'},{n:'Port 10',k:'sfp+',wan:1,s:'W10'},{n:'Port 11',k:'sfp+'}]},
+    'udr':{name:'Dream Router',ports:()=>[...seq(1,4,Nu,'rj45',2),{n:'Port 5',k:'rj45',wan:1,s:'W5'}]},
+    'udr7':{name:'Dream Router 7',ports:()=>[...seq(1,3,Nu,'rj45-2.5',1),{n:'Port 4',k:'rj45-2.5',wan:1,s:'W4'},{n:'Port 5',k:'sfp+',wan:1,s:'W5'}]},
+    'udr-5g-max':{name:'Dream Router 5G Max',ports:()=>[...seq(1,4,Nu,'rj45-2.5',1),{n:'Port 5',k:'sfp+',wan:1,s:'W5'}]},
+    'ux':{name:'UniFi Express',ports:()=>[{n:'WAN',k:'rj45',wan:1},{n:'LAN',k:'rj45'}]},
+    'ux7':{name:'UniFi Express 7',ports:()=>[{n:'WAN',k:'rj45-10',wan:1},{n:'LAN',k:'rj45-2.5'}]},
+    'uxg-lite':{name:'Gateway Lite',ports:()=>[{n:'WAN',k:'rj45',wan:1},{n:'LAN',k:'rj45'}]},
+    'uxg-max':{name:'Gateway Max',ports:()=>[...seq(1,4,Nu,'rj45-2.5'),{n:'Port 5',k:'rj45-2.5',wan:1,s:'W5'}]},
+    'uxg-fiber':{name:'Gateway Fiber',ports:()=>[...seq(1,4,Nu,'rj45-2.5',1),{n:'Port 5',k:'rj45-10',wan:1,s:'W5'},{n:'Port 6',k:'sfp+',s:'S6'},{n:'Port 7',k:'sfp+',s:'S7'}]},
     'uxg-pro':{name:'Next-Gen Gateway Pro',ports:()=>[{n:'WAN1',k:'rj45',wan:1},{n:'LAN1',k:'rj45'},{n:'WAN2',k:'sfp+',wan:1},{n:'LAN2',k:'sfp+'}]},
+    'usg':{name:'Security Gateway (USG)',ports:()=>[{n:'WAN1',k:'rj45',wan:1},{n:'LAN1',k:'rj45'},{n:'WAN2',k:'rj45',wan:1}]},
+    'usg-pro-4':{name:'Security Gateway Pro 4 (USG-Pro-4)',ports:()=>[{n:'WAN1',k:'rj45',wan:1},{n:'LAN1',k:'rj45'},{n:'WAN2',k:'rj45',wan:1},{n:'LAN2',k:'rj45'}]},
   }},
   hp:{name:'HP / Aruba',models:{
     'aruba-9004':{name:'Aruba 9004 Gateway',ports:()=>range(0,3,i=>({n:'GE0/0/'+i,k:'rj45'}))},
@@ -1991,7 +2005,7 @@ function detect(t){
   if(/^\s*(untagged|tagged)\s+\S/m.test(t)||/Configuration Editor/.test(t)) return 'hp';
   return null;
 }
-const HINTMAP=[[/c9200l-24p-4g/i,'c9200l-24p-4g'],[/c9200l-24p-4x/i,'c9200l-24p-4x'],[/c9200l-48p-4x/i,'c9200l-48p-4x'],[/c9300-24p/i,'c9300-24p'],[/c9300-48p/i,'c9300-48p'],
+const HINTMAP=[[/udm-?pro-?max/i,'udm-pro-max'],[/udm-?pro/i,'udm-pro'],[/udm-?se/i,'udm-se'],[/ucg-?ultra/i,'ucg-ultra'],[/ucg-?max/i,'ucg-max'],[/ucg-?fiber/i,'ucg-fiber'],[/uxg-?lite/i,'uxg-lite'],[/uxg-?max/i,'uxg-max'],[/uxg-?fiber/i,'uxg-fiber'],[/uxg-?pro/i,'uxg-pro'],[/udr-?5g/i,'udr-5g-max'],[/udr7/i,'udr7'],[/usg-?pro-?4/i,'usg-pro-4'],[/c9200l-24p-4g/i,'c9200l-24p-4g'],[/c9200l-24p-4x/i,'c9200l-24p-4x'],[/c9200l-48p-4x/i,'c9200l-48p-4x'],[/c9300-24p/i,'c9300-24p'],[/c9300-48p/i,'c9300-48p'],
   [/c2960x-24ps/i,'c2960x-24ps'],[/c2960x-48fps/i,'c2960x-48fps'],[/C1000-8P/i,'c1000-8p-2g'],[/C1000-24P/i,'c1000-24p-4x'],[/C1000-48P/i,'c1000-48p-4x'],[/JL255A/,'2930f-24g-poe'],[/JL256A/,'2930f-48g-poe'],[/J9773A/,'2530-24g-poe'],[/ArubaOS-CX\s+PL\./,'cx6100-24g-poe'],[/ArubaOS-CX\s+FL\./,'cx6200f-48g-poe'],
   [/FGT40F/,'fg-40f'],[/FGT60F/,'fg-60f'],[/FGT61F/,'fg-61f'],[/FGT8[01]F/,'fg-80f'],[/FGT10[01]F/,'fg-100f'],[/FGT20[01]F/,'fg-200f'],[/S108F/,'fs-108f-poe'],[/S124F/,'fs-124f-poe'],[/S148F/,'fs-148f-fpoe'],[/S224E/,'fs-224e-poe'],[/S424E/,'fs-424e-fpoe'],
   [/USW-Pro-24-PoE/i,'usw-pro-24-poe'],[/USW-Pro-48-PoE/i,'usw-pro-48-poe'],[/USW-24-PoE/i,'usw-24-poe'],[/USW-Lite-16/i,'usw-lite-16-poe'],[/USW-Lite-8/i,'usw-lite-8-poe']];
@@ -2129,7 +2143,7 @@ function parseNeighbors(text){
 /* Which kind of device is this neighbour? Names and descriptions first, then the advertised capabilities. */
 const DEVICE_HINTS=[
   [/\bmodem\b|telenet|proximus|edpnet|\bb-?box\b|fritz!?box|connect ?box|\bcbn\b|technicolor|sagemcom|\bcpe\b/,'modem'],
-  [/fortigate|\bfgt\d|firewall|pfsense|opnsense|sophos|palo ?alto|watchguard|\basa ?\d|firepower|check ?point|\budm\b|dream machine|cloud gateway|\bucg\b|\buxg\b|(^|[-_\s])gw(\d*|[-_]|$)/,'firewall'],
+  [/fortigate|\bfgt\d|firewall|pfsense|opnsense|sophos|palo ?alto|watchguard|\basa ?\d|firepower|check ?point|\budm\b|dream machine|dream router|cloud gateway|\bucg\b|\buxg\b|\budr7?\b|\busg\b|security gateway|unifi gateway|gateway (lite|max|pro|fiber)|(^|[-_\s])gw(\d*|[-_]|$)/,'firewall'],
   [/ip ?phone|telephone|\bsep[0-9a-f]{12}\b|yealink|polycom|snom|grandstream|avaya|mitel|\bcp-\d{4}|gigaset|\bphone\b|\bsip[-_]?t\d|(^|[^a-z0-9])t(19|2\d|3\d|4\d|5\d|7\d)[a-z]?([-_ ]?e\d)?($|[^a-z0-9])|\bw[5-9]\d[bp]\b|\bcp9\d\d\b|\bvvx\s?\d|\bccx\s?\d/,'phone'],
   [/access ?point|\buap\b|uap-|\bu[67][-\s]|air-c?ap|\bcw91|fortiap|\bfap-|meraki mr|\bwap\d|\beap\d|\bap\d{2,}\b|\bap[-_]\d|^ap\b|instant on ap|\biap-/,'ap'],
   [/printer|\bprint|\bprn|laserjet|officejet|pagewide|\bhp ?lj|\blj\d|\bmfp\b|brother|kyocera|ricoh|xerox|imagerunner|konica|lexmark|epson|zebra/,'printer'],
@@ -2157,7 +2171,7 @@ function classifyRaw(nb){
   return c;
 }
 const classify=nb=>classifyRaw(nb)||'pc';
-const BRAND_HINTS=[[/fortinet|forti(switch|gate|ap)|\bfgt|\bfs-?\d/i,'fortinet'],[/ubiquiti|unifi|\busw|\buap|edgeswitch|\bu[67]-|\bucg|\budm|\bunas/i,'unifi'],[/aruba|procurve|hewlett|\bhpe?\b|instant on/i,'hp'],[/cisco|catalyst/i,'cisco'],[/synology|diskstation|rackstation/i,'synology'],[/qnap/i,'qnap']];
+const BRAND_HINTS=[[/fortinet|forti(switch|gate|ap)|\bfgt|\bfs-?\d/i,'fortinet'],[/ubiquiti|unifi|\busw|\buap|edgeswitch|\bu[67]-|\bucg|\budm|\bunas|\buxg|\budr|\busg\b/i,'unifi'],[/aruba|procurve|hewlett|\bhpe?\b|instant on/i,'hp'],[/cisco|catalyst/i,'cisco'],[/synology|diskstation|rackstation/i,'synology'],[/qnap/i,'qnap']];
 function guessDevice(nb){
   const type=classify(nb), txt=[nb.name,nb.platform,nb.desc].join(' '), cat=CAT[type];
   let brand='', sku='';
@@ -3505,7 +3519,7 @@ const LX=(()=>{
 LX.start();
 
 /* ---- Updates: compare this copy with version.json in the GitHub repo ---- */
-const NS_VERSION='1.6.0';
+const NS_VERSION='1.6.1';
 const UPD={repo:'DeslypereBram/netsketch-releases',branch:'main'}; // public: holds only NetSketch.html and version.json; the source stays in the private Netsketch repo
 const upRaw=f=>`https://raw.githubusercontent.com/${UPD.repo}/${UPD.branch}/${f}`;
 const upPage=`https://github.com/${UPD.repo}`;

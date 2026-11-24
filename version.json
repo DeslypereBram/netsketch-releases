@@ -1,10 +1,9 @@
 {
-  "version": "1.6.0",
-  "date": "2026-11-21",
+  "version": "1.6.1",
+  "date": "2026-11-24",
   "file": "NetSketch.html",
   "notes": [
-    "Language selector in the top bar: English, Nederlands, Français",
-    "NetSketch starts in the language of your browser and remembers your choice",
-    "Device names, ports, VLAN names and commands stay as they are; PDF and Visio exports are still in English"
+    "More UniFi gateways: Cloud Gateway Fiber, Dream Machine, Dream Machine Pro Max, Dream Router, Dream Router 7, Dream Router 5G Max, UniFi Express, Express 7, Gateway Lite, Gateway Max, Gateway Fiber, USG and USG-Pro-4",
+    "UniFi gateways are recognised by name in LLDP output"
   ]
 }
