@@ -1,10 +1,9 @@
 {
-  "version": "1.7.0",
+  "version": "1.7.1",
   "date": "2026-11-25",
   "file": "NetSketch.html",
   "notes": [
-    "Find printers, cameras, IP phones and NAS without LLDP: paste a switch's MAC address table (HP, Aruba CX, Cisco, FortiSwitch, UniFi) in the LLDP box",
-    "Add the firewall's ARP table or DHCP leases in the same box for their IP address and hostname",
-    "New help section: Printers and other devices without LLDP"
+    "MAC address table import: the FortiGate interface names in the ARP table (Camera, VoIP…) now tell which VLAN is for what, so a camera or phone of an unknown maker is still recognised",
+    "The VLAN name is shown next to each device found"
   ]
 }
