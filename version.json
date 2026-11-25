@@ -1,9 +1,10 @@
 {
-  "version": "1.6.3",
-  "date": "2026-11-24",
+  "version": "1.7.0",
+  "date": "2026-11-25",
   "file": "NetSketch.html",
   "notes": [
-    "Fix: a port description naming a phone, DECT base or access point (like W80B) no longer cables every switch to the same device",
-    "Access points named like 7AP22 are now recognised as access points"
+    "Find printers, cameras, IP phones and NAS without LLDP: paste a switch's MAC address table (HP, Aruba CX, Cisco, FortiSwitch, UniFi) in the LLDP box",
+    "Add the firewall's ARP table or DHCP leases in the same box for their IP address and hostname",
+    "New help section: Printers and other devices without LLDP"
   ]
 }
